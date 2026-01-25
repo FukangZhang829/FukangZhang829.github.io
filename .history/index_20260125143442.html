@@ -31,7 +31,6 @@
       max-width: 1280px;
       margin-left: auto;
       margin-right: auto;
-      overflow: visible;
     }
 
     .nav-container {
@@ -41,7 +40,6 @@
       margin-right: auto;
       display: flex;
       align-items: center;
-      /* float: left; */
       /* justify-content: space-between; Distribute space between logo and menu */
     }
 
@@ -89,7 +87,7 @@
     .mobile-menu-dropdown {
       display: none; /* Hidden by default, shown on smaller screens */
       position: relative;
-      margin-left: auto;
+      margin-left: 10px;
     }
 
     .mobile-menu-toggle {
@@ -105,7 +103,7 @@
 
     .mobile-menu-list {
       display: none;
-      position: fixed;
+      position: absolute;
       top: 100%;
       right: 0;
       background-color: white;
@@ -113,15 +111,11 @@
       border-radius: 4px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       min-width: 150px;
-      z-index: 9999 !important;
-      overflow: visible;
-      overflow-y: auto;
+      z-index: 101;
     }
 
     .mobile-menu-list.show {
       display: block;
-      /* position: fixed; */
-      /* z-index: 1000; */
     }
 
     .mobile-menu-item {
@@ -156,7 +150,7 @@
       
       .lang-switch {
         font-size: small;
-        padding: 10px 15px;
+        padding: 0 8px;
       }
     }
 
@@ -181,7 +175,7 @@
       
       .lang-switch {
         font-size: x-small;
-        padding: 10px 15px;
+        padding: 0 6px;
       }
     }
 
@@ -197,11 +191,6 @@
       .logo-menu-item {
         font-size: small;
         padding: 0 8px;
-      }
-            
-      .lang-switch {
-        font-size: x-small;
-        padding: 10px 15px;
       }
     }
 
@@ -274,7 +263,7 @@
       border: none;
       background: none;
       cursor: pointer;
-      padding: 10px 15px;
+      padding: 0 10px;
       height: 100%;
       display: flex;
       align-items: center;
@@ -374,7 +363,7 @@
       
       .lang-switch {
         font-size: small;
-        /* padding: 0 8px; */
+        padding: 0 8px;
       }
     }
 
@@ -460,37 +449,37 @@
         </div>
         
         <!-- Language Switch Button -->
-        <div class="el-menu-item lang-switch-btn header-title">
+        <div class="el-menu-item lang-switch-btn">
           <button class="lang-switch" id="lang-switch-btn">中文</button>
         </div>
       </div>
-    </div>
-    <!-- Mobile menu dropdown for responsive design -->
-    <div class="mobile-menu-dropdown">
-      <button class="mobile-menu-toggle" id="mobile-menu-toggle">&#8942;</button>
-      <div class="mobile-menu-list" id="mobile-menu-list">
-        <div class="mobile-menu-item header-title" data-page="about">
-          <a href="#" class="menu-link">
-            <span id="nav-about-mobile">About</span>
-          </a>
-        </div>
-        <div class="mobile-menu-item header-title" data-page="publications">
-          <a href="#" class="menu-link">
-            <span id="nav-publications-mobile">Publications</span>
-          </a>
-        </div>
-        <div class="mobile-menu-item header-title" data-page="portfolios">
-          <a href="#" class="menu-link">
-            <span id="nav-portfolios-mobile">Portfolios</span>
-          </a>
-        </div>
-        <div class="mobile-menu-item lang-switch-btn">
-          <button class="lang-switch" id="lang-switch-btn-mobile">中文</button>
+      
+      <!-- Mobile menu dropdown for responsive design -->
+      <div class="mobile-menu-dropdown">
+        <button class="mobile-menu-toggle" id="mobile-menu-toggle">&#8942;</button>
+        <div class="mobile-menu-list" id="mobile-menu-list">
+          <div class="mobile-menu-item header-title" data-page="about">
+            <a href="#" class="menu-link">
+              <span id="nav-about-mobile">About</span>
+            </a>
+          </div>
+          <div class="mobile-menu-item header-title" data-page="publications">
+            <a href="#" class="menu-link">
+              <span id="nav-publications-mobile">Publications</span>
+            </a>
+          </div>
+          <div class="mobile-menu-item header-title" data-page="portfolios">
+            <a href="#" class="menu-link">
+              <span id="nav-portfolios-mobile">Portfolios</span>
+            </a>
+          </div>
+          <div class="mobile-menu-item lang-switch-btn">
+            <button class="lang-switch" id="lang-switch-btn-mobile">中文</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
-
 
   <!-- 主内容区域 -->
   <div class="content" id="main-content">
@@ -1031,54 +1020,44 @@
     document.addEventListener('DOMContentLoaded', setupDynamicMenuCollapse);
     
     // Mobile menu toggle functionality
-    const menuToggle = document.getElementById('mobile-menu-toggle');
-    const menuList = document.getElementById('mobile-menu-list');
-
-    // 动态计算并设置下拉菜单位置
-    function positionDropdown() {
-      const rect = menuToggle.getBoundingClientRect();
-      menuList.style.top = rect.bottom + 4 + 'px';
-      menuList.style.right = (window.innerWidth - rect.right) + 'px';
-    }
-
-    menuToggle.addEventListener('click', function(e) {
-      e.stopPropagation();
-      
-      if (menuList.classList.contains('show')) {
-        menuList.classList.remove('show');
-      } else {
-        positionDropdown();
-        menuList.classList.add('show');
-      }
-    });
-
-    // 点击外部关闭
-    document.addEventListener('click', function(e) {
-      if (!menuList.contains(e.target) && e.target !== menuToggle) {
-        menuList.classList.remove('show');
-      }
-    });
-
-    // 点击菜单项后关闭
-    document.querySelectorAll('.mobile-menu-item').forEach(item => {
-      item.addEventListener('click', function() {
-        menuList.classList.remove('show');
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const mobileMenuList = document.getElementById('mobile-menu-list');
+    
+    if (mobileMenuToggle && mobileMenuList) {
+      mobileMenuToggle.addEventListener('click', function(e) {
+        e.stopPropagation(); // Prevent event bubbling
+        mobileMenuList.classList.toggle('show');
       });
-    });
-
-    // 窗口大小改变时重新计算
-    window.addEventListener('resize', function() {
-      if (menuList.classList.contains('show')) {
-        positionDropdown();
-      }
-    });
-
-    // 滚动时重新计算（因为导航栏是 sticky）
-    window.addEventListener('scroll', function() {
-      if (menuList.classList.contains('show')) {
-        positionDropdown();
-      }
-    });
+      
+      // Close mobile menu when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!mobileMenuList.contains(e.target) && e.target !== mobileMenuToggle) {
+          mobileMenuList.classList.remove('show');
+        }
+      });
+      
+      // Copy text content from desktop menu to mobile menu
+      document.getElementById('nav-about-mobile').textContent = document.getElementById('nav-about').textContent;
+      document.getElementById('nav-publications-mobile').textContent = document.getElementById('nav-publications').textContent;
+      document.getElementById('nav-portfolios-mobile').textContent = document.getElementById('nav-portfolios').textContent;
+      document.getElementById('lang-switch-btn-mobile').textContent = document.getElementById('lang-switch-btn').textContent;
+      
+      // Add click handlers to mobile menu items
+      document.querySelectorAll('.mobile-menu-item[data-page]').forEach(item => {
+        item.addEventListener('click', function(e) {
+          e.preventDefault();
+          const page = this.getAttribute('data-page');
+          showPage(page);
+          mobileMenuList.classList.remove('show'); // Close menu after selection
+        });
+      });
+      
+      // Add click handler for mobile language switch
+      document.getElementById('lang-switch-btn-mobile').addEventListener('click', function() {
+        toggleLanguage();
+        document.getElementById('lang-switch-btn-mobile').textContent = currentLang === 'zh' ? 'EN' : 'CN';
+      });
+    }
   </script>
 </body>
 </html>

@@ -31,7 +31,7 @@
       max-width: 1280px;
       margin-left: auto;
       margin-right: auto;
-      overflow: visible;
+      /* overflow: hidden; */
     }
 
     .nav-container {
@@ -82,14 +82,14 @@
       border-radius: 4px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       min-width: 150px;
-      z-index: 101;
+      z-index: 10001;
     }
     
     /* Mobile menu dropdown styles */
     .mobile-menu-dropdown {
       display: none; /* Hidden by default, shown on smaller screens */
       position: relative;
-      margin-left: auto;
+      margin-left: 50%;
     }
 
     .mobile-menu-toggle {
@@ -105,7 +105,7 @@
 
     .mobile-menu-list {
       display: none;
-      position: fixed;
+      position: absolute;
       top: 100%;
       right: 0;
       background-color: white;
@@ -113,15 +113,13 @@
       border-radius: 4px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       min-width: 150px;
-      z-index: 9999 !important;
+      z-index: 1000;
       overflow: visible;
-      overflow-y: auto;
     }
 
     .mobile-menu-list.show {
       display: block;
       /* position: fixed; */
-      /* z-index: 1000; */
     }
 
     .mobile-menu-item {
@@ -1031,54 +1029,44 @@
     document.addEventListener('DOMContentLoaded', setupDynamicMenuCollapse);
     
     // Mobile menu toggle functionality
-    const menuToggle = document.getElementById('mobile-menu-toggle');
-    const menuList = document.getElementById('mobile-menu-list');
-
-    // 动态计算并设置下拉菜单位置
-    function positionDropdown() {
-      const rect = menuToggle.getBoundingClientRect();
-      menuList.style.top = rect.bottom + 4 + 'px';
-      menuList.style.right = (window.innerWidth - rect.right) + 'px';
-    }
-
-    menuToggle.addEventListener('click', function(e) {
-      e.stopPropagation();
-      
-      if (menuList.classList.contains('show')) {
-        menuList.classList.remove('show');
-      } else {
-        positionDropdown();
-        menuList.classList.add('show');
-      }
-    });
-
-    // 点击外部关闭
-    document.addEventListener('click', function(e) {
-      if (!menuList.contains(e.target) && e.target !== menuToggle) {
-        menuList.classList.remove('show');
-      }
-    });
-
-    // 点击菜单项后关闭
-    document.querySelectorAll('.mobile-menu-item').forEach(item => {
-      item.addEventListener('click', function() {
-        menuList.classList.remove('show');
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const mobileMenuList = document.getElementById('mobile-menu-list');
+    
+    if (mobileMenuToggle && mobileMenuList) {
+      mobileMenuToggle.addEventListener('click', function(e) {
+        e.stopPropagation(); // Prevent event bubbling
+        mobileMenuList.classList.toggle('show');
       });
-    });
-
-    // 窗口大小改变时重新计算
-    window.addEventListener('resize', function() {
-      if (menuList.classList.contains('show')) {
-        positionDropdown();
-      }
-    });
-
-    // 滚动时重新计算（因为导航栏是 sticky）
-    window.addEventListener('scroll', function() {
-      if (menuList.classList.contains('show')) {
-        positionDropdown();
-      }
-    });
+      
+      // Close mobile menu when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!mobileMenuList.contains(e.target) && e.target !== mobileMenuToggle) {
+          mobileMenuList.classList.remove('show');
+        }
+      });
+      
+      // Copy text content from desktop menu to mobile menu
+      document.getElementById('nav-about-mobile').textContent = document.getElementById('nav-about').textContent;
+      document.getElementById('nav-publications-mobile').textContent = document.getElementById('nav-publications').textContent;
+      document.getElementById('nav-portfolios-mobile').textContent = document.getElementById('nav-portfolios').textContent;
+      document.getElementById('lang-switch-btn-mobile').textContent = document.getElementById('lang-switch-btn').textContent;
+      
+      // Add click handlers to mobile menu items
+      document.querySelectorAll('.mobile-menu-item[data-page]').forEach(item => {
+        item.addEventListener('click', function(e) {
+          e.preventDefault();
+          const page = this.getAttribute('data-page');
+          showPage(page);
+          mobileMenuList.classList.remove('show'); // Close menu after selection
+        });
+      });
+      
+      // Add click handler for mobile language switch
+      document.getElementById('lang-switch-btn-mobile').addEventListener('click', function() {
+        toggleLanguage();
+        document.getElementById('lang-switch-btn-mobile').textContent = currentLang === 'zh' ? 'EN' : 'CN';
+      });
+    }
   </script>
 </body>
 </html>
