@@ -123,57 +123,6 @@
     .timeline-item:last-child::after {
       display: none;
     }
-    .news-card {
-      position: relative;
-      background: white;
-      border-radius: 1rem;
-      padding: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      transition: all 0.3s ease;
-    }
-    .dark .news-card {
-      background: rgba(30, 41, 59, 0.8);
-    }
-    .news-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 24px rgba(0,0,0,0.15);
-    }
-    .news-card .timeline-number {
-      position: absolute;
-      top: -12px;
-      left: 16px;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 700;
-      color: white;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-    #news-container > .news-card:nth-child(1) .timeline-number { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
-    #news-container > .news-card:nth-child(2) .timeline-number { background: linear-gradient(135deg, #8b5cf6, #a855f7); }
-    #news-container > .news-card:nth-child(3) .timeline-number { background: linear-gradient(135deg, #a855f7, #d946ef); }
-    #news-container > .news-card:nth-child(4) .timeline-number { background: linear-gradient(135deg, #d946ef, #ec4899); }
-    #news-container > .news-card:nth-child(5) .timeline-number { background: linear-gradient(135deg, #ec4899, #f43f5e); }
-    #news-container > .news-card:nth-child(6) .timeline-number { background: linear-gradient(135deg, #f43f5e, #f97316); }
-    #news-container > .news-card:nth-child(7) .timeline-number { background: linear-gradient(135deg, #f97316, #eab308); }
-    #news-container > .news-card:nth-child(8) .timeline-number { background: linear-gradient(135deg, #eab308, #84cc16); }
-    #news-container > .news-card:nth-child(9) .timeline-number { background: linear-gradient(135deg, #84cc16, #22c55e); }
-    #news-container > .news-card:nth-child(10) .timeline-number { background: linear-gradient(135deg, #22c55e, #14b8a6); }
-    #news-container > .news-card:nth-child(11) .timeline-number { background: linear-gradient(135deg, #14b8a6, #06b6d4); }
-    #news-container > .news-card:nth-child(12) .timeline-number { background: linear-gradient(135deg, #06b6d4, #3b82f6); }
-    .news-card .timeline-date {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.25rem 0.75rem;
-      border-radius: 0.5rem;
-      font-size: 0.875rem;
-      font-weight: 600;
-      margin-bottom: 0.75rem;
-    }
     .card-hover {
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -254,50 +203,6 @@
     }
     .mobile-menu.open {
       transform: translateX(0);
-    }
-        .collapsible-content {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.5s ease-out, opacity 0.3s ease;
-      opacity: 0;
-    }
-    .collapsible-content.expanded {
-      max-height: 3000px;
-      opacity: 1;
-    }
-    .collapse-btn {
-      transition: transform 0.3s ease;
-    }
-    .collapse-btn.collapsed {
-      transform: rotate(-180deg);
-    }
-    .toc-item {
-      position: relative;
-      padding-left: 1rem;
-      border-left: 2px solid transparent;
-      transition: all 0.2s ease;
-    }
-    .toc-item:hover,
-    .toc-item.active {
-      border-left-color: #3b82f6;
-      background: rgba(59, 130, 246, 0.05);
-    }
-    .dark .toc-item:hover,
-    .dark .toc-item.active {
-      background: rgba(59, 130, 246, 0.1);
-    }
-    .project-header {
-      height: 80px;
-      min-height: 80px;
-    }
-    .publication-item {
-      transition: all 0.3s ease;
-    }
-    .publication-item:hover {
-      background: rgba(59, 130, 246, 0.05);
-    }
-    .dark .publication-item:hover {
-      background: rgba(59, 130, 246, 0.1);
     }
   </style>
 </head>
@@ -485,110 +390,143 @@
       <div class="text-center mb-16 animate-on-scroll">
         <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-4" data-i18n="news.title">News & Awards</h2>
         <div class="w-20 h-1 bg-gradient-to-r from-primary-500 to-purple-600 mx-auto rounded-full"></div>
-        <p class="mt-4 text-slate-600 dark:text-slate-400" data-i18n="news.subtitle">Chronological timeline of achievements and milestones</p>
       </div>
-      <div class="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto" id="news-container">
-        <div class="news-card animate-on-scroll pt-6">
-          <div class="timeline-number">1</div>
-          <span class="timeline-date bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300">12/2025</span>
-          <div class="flex items-center space-x-2 mb-3">
-            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">Top 10</span>
+      <div class="max-w-3xl mx-auto">
+        <div class="relative pl-8 space-y-6 animate-on-scroll">
+          <div class="timeline-item relative pl-6 pb-6">
+            <div class="flex items-start space-x-4">
+              <span class="flex-shrink-0 px-3 py-1 rounded-lg bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-sm font-semibold whitespace-nowrap">12/2025</span>
+              <div class="bg-white dark:bg-dark-card rounded-xl p-4 shadow-sm flex-1 card-hover">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">Top 10</span>
+                </div>
+                <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item12">第五届智能制造创新大赛"AI+制造"赛道三等奖（全国第10名）</p>
+              </div>
+            </div>
           </div>
-          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item12">第五届智能制造创新大赛"AI+制造"赛道三等奖（全国第10名）</p>
-        </div>
-        <div class="news-card animate-on-scroll pt-6">
-          <div class="timeline-number">2</div>
-          <span class="timeline-date bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">11/2024</span>
-          <div class="flex items-center space-x-2 mb-3">
-            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">Bronze</span>
+          <div class="timeline-item relative pl-6 pb-6">
+            <div class="flex items-start space-x-4">
+              <span class="flex-shrink-0 px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-sm font-semibold whitespace-nowrap">11/2024</span>
+              <div class="bg-white dark:bg-dark-card rounded-xl p-4 shadow-sm flex-1 card-hover">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">Bronze</span>
+                </div>
+                <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item11">We won the Bronze Award in the "Challenge Cup" Capital University Student Entrepreneurship Plan Competition</p>
+              </div>
+            </div>
           </div>
-          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item11">We won the Bronze Award in the "Challenge Cup" Capital University Student Entrepreneurship Plan Competition</p>
-        </div>
-        <div class="news-card animate-on-scroll pt-6">
-          <div class="timeline-number">3</div>
-          <span class="timeline-date bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300">06/2023</span>
-          <div class="flex items-center space-x-2 mb-3">
-            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">Honor</span>
+          <div class="timeline-item relative pl-6 pb-6">
+            <div class="flex items-start space-x-4">
+              <span class="flex-shrink-0 px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-sm font-semibold whitespace-nowrap">06/2023</span>
+              <div class="bg-white dark:bg-dark-card rounded-xl p-4 shadow-sm flex-1 card-hover">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">Honor</span>
+                </div>
+                <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item10">I was awarded as Outstanding Graduate of BUAA</p>
+              </div>
+            </div>
           </div>
-          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item10">I was awarded as Outstanding Graduate of BUAA</p>
-        </div>
-        <div class="news-card animate-on-scroll pt-6">
-          <div class="timeline-number">4</div>
-          <span class="timeline-date bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300">12/2023</span>
-          <div class="flex items-center space-x-2 mb-3">
-            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400">Star</span>
+          <div class="timeline-item relative pl-6 pb-6">
+            <div class="flex items-start space-x-4">
+              <span class="flex-shrink-0 px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-sm font-semibold whitespace-nowrap">12/2023</span>
+              <div class="bg-white dark:bg-dark-card rounded-xl p-4 shadow-sm flex-1 card-hover">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-semibold bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400">Star</span>
+                </div>
+                <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item9">I won the "Star of Science and Technology Innovation" in the School of Economics and Management at BUAA</p>
+              </div>
+            </div>
           </div>
-          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item9">I won the "Star of Science and Technology Innovation" in the School of Economics and Management at BUAA</p>
-        </div>
-        <div class="news-card animate-on-scroll pt-6 news-more-item hidden">
-          <div class="timeline-number">5</div>
-          <span class="timeline-date bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300">11/2023</span>
-          <div class="flex items-center space-x-2 mb-3">
-            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">2nd Prize</span>
+          <div class="timeline-item relative pl-6 pb-6">
+            <div class="flex items-start space-x-4">
+              <span class="flex-shrink-0 px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-sm font-semibold whitespace-nowrap">11/2023</span>
+              <div class="bg-white dark:bg-dark-card rounded-xl p-4 shadow-sm flex-1 card-hover">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">2nd Prize</span>
+                </div>
+                <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item8">We won the second prize at Beijing College students Engineering Practice and Innovation Ability Competition</p>
+              </div>
+            </div>
           </div>
-          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item8">We won the second prize at Beijing College students Engineering Practice and Innovation Ability Competition</p>
-        </div>
-        <div class="news-card animate-on-scroll pt-6 news-more-item hidden">
-          <div class="timeline-number">6</div>
-          <span class="timeline-date bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">08/2023</span>
-          <div class="flex items-center space-x-2 mb-3">
-            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">1st Prize</span>
+          <div class="timeline-item relative pl-6 pb-6">
+            <div class="flex items-start space-x-4">
+              <span class="flex-shrink-0 px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-sm font-semibold whitespace-nowrap">08/2023</span>
+              <div class="bg-white dark:bg-dark-card rounded-xl p-4 shadow-sm flex-1 card-hover">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">1st Prize</span>
+                </div>
+                <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item7">We won the first prize at the 9th China "Internet+" Innovation and Entrepreneurship Competition (Beijing)</p>
+              </div>
+            </div>
           </div>
-          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item7">We won the first prize at the 9th China "Internet+" Innovation and Entrepreneurship Competition (Beijing)</p>
-        </div>
-        <div class="news-card animate-on-scroll pt-6 news-more-item hidden">
-          <div class="timeline-number">7</div>
-          <span class="timeline-date bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300">05/2023</span>
-          <div class="flex items-center space-x-2 mb-3">
-            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">2nd Prize</span>
+          <div class="timeline-item relative pl-6 pb-6">
+            <div class="flex items-start space-x-4">
+              <span class="flex-shrink-0 px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-sm font-semibold whitespace-nowrap">05/2023</span>
+              <div class="bg-white dark:bg-dark-card rounded-xl p-4 shadow-sm flex-1 card-hover">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">2nd Prize</span>
+                </div>
+                <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item6">I won the second prize in the Blue Bridge Cup python programming project</p>
+              </div>
+            </div>
           </div>
-          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item6">I won the second prize in the Blue Bridge Cup python programming project</p>
-        </div>
-        <div class="news-card animate-on-scroll pt-6 news-more-item hidden">
-          <div class="timeline-number">8</div>
-          <span class="timeline-date bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-300">05/2023</span>
-          <div class="flex items-center space-x-2 mb-3">
-            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">Honorable</span>
+          <div class="timeline-item relative pl-6 pb-6">
+            <div class="flex items-start space-x-4">
+              <span class="flex-shrink-0 px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-sm font-semibold whitespace-nowrap">05/2023</span>
+              <div class="bg-white dark:bg-dark-card rounded-xl p-4 shadow-sm flex-1 card-hover">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">Honorable</span>
+                </div>
+                <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item5">We won the Honorable prize in the MCM/ICM</p>
+              </div>
+            </div>
           </div>
-          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item5">We won the Honorable prize in the MCM/ICM</p>
-        </div>
-        <div class="news-card animate-on-scroll pt-6 news-more-item hidden">
-          <div class="timeline-number">9</div>
-          <span class="timeline-date bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">05/2022</span>
-          <div class="flex items-center space-x-2 mb-3">
-            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">Honorable</span>
+          <div class="timeline-item relative pl-6 pb-6">
+            <div class="flex items-start space-x-4">
+              <span class="flex-shrink-0 px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-sm font-semibold whitespace-nowrap">05/2022</span>
+              <div class="bg-white dark:bg-dark-card rounded-xl p-4 shadow-sm flex-1 card-hover">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">Honorable</span>
+                </div>
+                <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item4">We won the Honorable prize in the MCM/ICM</p>
+              </div>
+            </div>
           </div>
-          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item4">We won the Honorable prize in the MCM/ICM</p>
-        </div>
-        <div class="news-card animate-on-scroll pt-6 news-more-item hidden">
-          <div class="timeline-number">10</div>
-          <span class="timeline-date bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300">04/2022</span>
-          <div class="flex items-center space-x-2 mb-3">
-            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">2nd Prize</span>
+          <div class="timeline-item relative pl-6 pb-6">
+            <div class="flex items-start space-x-4">
+              <span class="flex-shrink-0 px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-sm font-semibold whitespace-nowrap">04/2022</span>
+              <div class="bg-white dark:bg-dark-card rounded-xl p-4 shadow-sm flex-1 card-hover">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">2nd Prize</span>
+                </div>
+                <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item3">I won the second prize in the 1st National College Student Data Analysis Competition</p>
+              </div>
+            </div>
           </div>
-          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item3">I won the second prize in the 1st National College Student Data Analysis Competition</p>
-        </div>
-        <div class="news-card animate-on-scroll pt-6 news-more-item hidden">
-          <div class="timeline-number">11</div>
-          <span class="timeline-date bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300">12/2021</span>
-          <div class="flex items-center space-x-2 mb-3">
-            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">1st Prize</span>
+          <div class="timeline-item relative pl-6 pb-6">
+            <div class="flex items-start space-x-4">
+              <span class="flex-shrink-0 px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-sm font-semibold whitespace-nowrap">12/2021</span>
+              <div class="bg-white dark:bg-dark-card rounded-xl p-4 shadow-sm flex-1 card-hover">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">1st Prize</span>
+                </div>
+                <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item2">I won the first prize in the National Mathematics Competition for college students</p>
+              </div>
+            </div>
           </div>
-          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item2">I won the first prize in the National Mathematics Competition for college students</p>
-        </div>
-        <div class="news-card animate-on-scroll pt-6 news-more-item hidden">
-          <div class="timeline-number">12</div>
-          <span class="timeline-date bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300">11/2021</span>
-          <div class="flex items-center space-x-2 mb-3">
-            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">Honor</span>
+          <div class="timeline-item relative pl-6">
+            <div class="flex items-start space-x-4">
+              <span class="flex-shrink-0 px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-sm font-semibold whitespace-nowrap">11/2021</span>
+              <div class="bg-white dark:bg-dark-card rounded-xl p-4 shadow-sm flex-1 card-hover">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">Honor</span>
+                </div>
+                <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item1">Awarded "Outstanding Students Cadre" by BeiHang University</p>
+              </div>
+            </div>
           </div>
-          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item1">Awarded "Outstanding Students Cadre" by BeiHang University</p>
         </div>
       </div>
-      <button id="news-toggle" class="w-full mt-8 py-3 px-6 rounded-xl bg-white dark:bg-dark-card shadow-sm hover:shadow-md transition-all flex items-center justify-center space-x-2 text-primary-600 dark:text-primary-400 font-medium max-w-6xl mx-auto">
-        <span data-i18n="common.showMore">Show More</span>
-        <i class="fas fa-chevron-down collapse-btn"></i>
-      </button>
     </div>
   </section>
 
@@ -601,8 +539,8 @@
       </div>
       <div class="grid md:grid-cols-2 gap-8">
         <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl overflow-hidden card-hover animate-on-scroll">
-          <div class="h-20 bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center">
-            <i class="fas fa-robot text-3xl text-white/80"></i>
+          <div class="h-48 bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center">
+            <i class="fas fa-robot text-6xl text-white/80"></i>
           </div>
           <div class="p-6">
             <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-3" data-i18n="projects.project1.title">Interactive Production Scheduling Agent for Aviation Manufacturing</h3>
@@ -611,21 +549,17 @@
               <span class="tag px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium">Agent</span>
               <span class="tag px-3 py-1 rounded-full bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs font-medium">LangGraph</span>
               <span class="tag px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium">FastAPI</span>
-              <span class="tag px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium">APS</span>
             </div>
             <p class="text-slate-600 dark:text-slate-400 text-sm mb-4" data-i18n="projects.project1.desc">Developed an intelligent scheduling agent for discrete manufacturing scenarios in aviation. Implemented automatic tool registration, parameter dependency resolution, and natural language-driven operations using LangGraph and MCP.</p>
             <div class="flex items-center text-sm text-slate-500 dark:text-slate-400">
               <i class="fas fa-calendar mr-2"></i>
               <span>2024.08 - 2027.06</span>
             </div>
-            <div class="mt-4">
-              <img src="./assets/APS.png" alt="FJSP Project" class="w-full rounded-lg shadow-sm">
-            </div>
           </div>
         </div>
         <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl overflow-hidden card-hover animate-on-scroll" style="animation-delay: 0.1s;">
-          <div class="h-20 bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-            <i class="fas fa-project-diagram text-3xl text-white/80"></i>
+          <div class="h-48 bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+            <i class="fas fa-project-diagram text-6xl text-white/80"></i>
           </div>
           <div class="p-6">
             <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-3" data-i18n="projects.project2.title">FJSP Based on Graph Neural Network and Deep Reinforcement Learning</h3>
@@ -644,10 +578,9 @@
             </div>
           </div>
         </div>
-        <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl overflow-hidden card-hover animate-on-scroll" style="animation-delay: 0.2s;">        
-        <!-- <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl overflow-hidden card-hover animate-on-scroll projects-more-item hidden" style="animation-delay: 0.2s;"></div> -->
-          <div class="h-20 bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-            <i class="fas fa-database text-3xl text-white/80"></i>
+        <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl overflow-hidden card-hover animate-on-scroll" style="animation-delay: 0.2s;">
+          <div class="h-48 bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+            <i class="fas fa-database text-6xl text-white/80"></i>
           </div>
           <div class="p-6">
             <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-3" data-i18n="projects.project3.title">Federated Learning Based Data Trading Platform</h3>
@@ -668,8 +601,8 @@
           </div>
         </div>
         <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl overflow-hidden card-hover animate-on-scroll" style="animation-delay: 0.3s;">
-          <div class="h-20 bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center">
-            <i class="fas fa-tags text-3xl text-white/80"></i>
+          <div class="h-48 bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center">
+            <i class="fas fa-tags text-6xl text-white/80"></i>
           </div>
           <div class="p-6">
             <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-3" data-i18n="projects.project4.title">Data Annotation Crowdsourcing Platform</h3>
@@ -690,21 +623,17 @@
           </div>
         </div>
       </div>
-      <button id="projects-toggle" class="w-full mt-8 py-3 px-6 rounded-xl bg-slate-50 dark:bg-slate-800/50 shadow-sm hover:shadow-md transition-all flex items-center justify-center space-x-2 text-primary-600 dark:text-primary-400 font-medium">
-        <span data-i18n="common.showMore">Show More</span>
-        <i class="fas fa-chevron-down collapse-btn"></i>
-      </button>
     </div>
   </section>
 
-  <section id="publications" class="py-20 bg-slate-50 dark:bg-dark-bg relative"> 
+  <section id="publications" class="py-20 bg-slate-50 dark:bg-dark-bg relative">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-16 animate-on-scroll">
         <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-4" data-i18n="publications.title">Publications</h2>
         <div class="w-20 h-1 bg-gradient-to-r from-primary-500 to-purple-600 mx-auto rounded-full"></div>
         <p class="mt-4 text-slate-600 dark:text-slate-400 max-w-2xl mx-auto" data-i18n="publications.subtitle">My academic contributions and patents</p>
       </div>
-      <div class="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+      <div class="max-w-4xl mx-auto space-y-6">
         <div class="bg-white dark:bg-dark-card rounded-2xl p-6 shadow-sm card-hover animate-on-scroll">
           <div class="flex items-start space-x-4">
             <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
@@ -747,7 +676,7 @@
             </div>
           </div>
         </div>
-        <div class="bg-white dark:bg-dark-card rounded-2xl p-6 shadow-sm card-hover animate-on-scroll publications-more-item hidden" style="animation-delay: 0.2s;">
+        <div class="bg-white dark:bg-dark-card rounded-2xl p-6 shadow-sm card-hover animate-on-scroll" style="animation-delay: 0.2s;">
           <div class="flex items-start space-x-4">
             <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
               <i class="fas fa-lightbulb text-purple-600 dark:text-purple-400 text-xl"></i>
@@ -767,23 +696,8 @@
           </div>
         </div>
       </div>
-      <button id="publications-toggle" class="w-full mt-8 py-3 px-6 rounded-xl bg-white dark:bg-dark-card shadow-sm hover:shadow-md transition-all flex items-center justify-center space-x-2 text-primary-600 dark:text-primary-400 font-medium max-w-6xl mx-auto">
-        <span data-i18n="common.showMore">Show More</span>
-        <i class="fas fa-chevron-down collapse-btn"></i>
-      </button>
     </div>
   </section>
-
-  <div id="floating-toc" class="fixed right-6 top-1/2 -translate-y-1/2 z-40 hidden lg:block">
-    <div class="bg-white dark:bg-dark-card rounded-2xl shadow-lg p-4 border border-slate-200 dark:border-slate-700">
-      <nav class="space-y-2">
-        <a href="#about" class="toc-item block py-2 px-3 rounded-lg text-sm text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors" data-i18n="nav.about">About</a>
-        <a href="#news" class="toc-item block py-2 px-3 rounded-lg text-sm text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors" data-i18n="nav.news">News</a>
-        <a href="#projects" class="toc-item block py-2 px-3 rounded-lg text-sm text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors" data-i18n="nav.projects">Projects</a>
-        <a href="#publications" class="toc-item block py-2 px-3 rounded-lg text-sm text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors" data-i18n="nav.publications">Publications</a>
-      </nav>
-    </div>
-  </div>
 
   <footer class="py-12 bg-slate-900 dark:bg-dark-card text-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -837,7 +751,6 @@
         },
         news: {
           title: 'News & Awards',
-          subtitle: 'Chronological timeline of achievements and milestones',
           item12: '3rd Prize in the 5th Intelligent Manufacturing Innovation Competition "AI+Manufacturing" Track (National Top 10)',
           item11: 'We won the Bronze Award in the "Challenge Cup" Capital University Student Entrepreneurship Plan Competition',
           item10: 'I was awarded as Outstanding Graduate of BUAA',
@@ -874,10 +787,6 @@
         publications: {
           title: 'Publications',
           subtitle: 'My academic contributions and patents'
-        },
-        common: {
-          showMore: 'Show More',
-          showLess: 'Show Less'
         }
       },
       zh: {
@@ -906,7 +815,6 @@
         },
         news: {
           title: '新闻与荣誉',
-          subtitle: '按时间顺序展示的成就与里程碑',
           item12: '第五届智能制造创新大赛"AI+制造"赛道三等奖（全国第10名）',
           item11: '我们在"挑战杯"首都大学生创业计划竞赛中获得铜奖',
           item10: '被评为北航优秀毕业生',
@@ -943,10 +851,6 @@
         publications: {
           title: '学术成果',
           subtitle: '我的论文与专利'
-        },
-        common: {
-          showMore: '展开更多',
-          showLess: '收起'
         }
       }
     };
@@ -1053,68 +957,6 @@
         }
       });
     });
-
-    function setupCollapsible(toggleId, contentId, itemClass) {
-      const toggle = document.getElementById(toggleId);
-      if (!toggle) return;
-      
-      toggle.addEventListener('click', () => {
-        const isExpanded = toggle.classList.contains('expanded');
-        const items = document.querySelectorAll(`.${itemClass}`);
-        
-        items.forEach(item => {
-          if (isExpanded) {
-            item.classList.add('hidden');
-          } else {
-            item.classList.remove('hidden');
-          }
-        });
-        
-        toggle.classList.toggle('expanded');
-        toggle.querySelector('.collapse-btn').classList.toggle('collapsed');
-        
-        const spanEl = toggle.querySelector('span[data-i18n]');
-        if (spanEl) {
-          const key = isExpanded ? 'common.showMore' : 'common.showLess';
-          spanEl.setAttribute('data-i18n', key);
-          const t = translations[currentLang];
-          const keys = key.split('.');
-          let value = t;
-          keys.forEach(k => value = value?.[k]);
-          if (value) spanEl.textContent = value;
-        }
-      });
-    }
-
-    setupCollapsible('news-toggle', null, 'news-more-item');
-    setupCollapsible('projects-toggle', 'projects-more', 'projects-more-item');
-    setupCollapsible('publications-toggle', 'publications-more', 'publications-more-item');
-
-    const tocItems = document.querySelectorAll('.toc-item');
-    const sections = ['about', 'news', 'projects', 'publications'];
-
-    function updateTocHighlight() {
-      const scrollPos = window.scrollY + 200;
-      
-      sections.forEach(sectionId => {
-        const section = document.getElementById(sectionId);
-        if (!section) return;
-        
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.offsetHeight;
-        const tocLink = document.querySelector(`.toc-item[href="#${sectionId}"]`);
-        
-        if (tocLink) {
-          if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
-            tocItems.forEach(item => item.classList.remove('active'));
-            tocLink.classList.add('active');
-          }
-        }
-      });
-    }
-
-    window.addEventListener('scroll', updateTocHighlight);
-    updateTocHighlight();
 
     updateLanguage();
   </script>
