@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fukang Zhang | Beihang University</title>
+  <meta name="description" content="Fukang Zhang - Graduate student at Beihang University, focusing on Scheduling Algorithm, LLMs, and Software Development">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+              950: '#0f172a',
+            },
+            dark: {
+              bg: '#0a0f1a',
+              card: '#111827',
+              border: '#1f2937',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          animation: {
+            'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
+            'fade-in': 'fadeIn 0.6s ease-out forwards',
+            'slide-in-left': 'slideInLeft 0.6s ease-out forwards',
+            'slide-in-right': 'slideInRight 0.6s ease-out forwards',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'float': 'float 6s ease-in-out infinite',
+          },
+          keyframes: {
+            fadeInUp: {
+              '0%': { opacity: '0', transform: 'translateY(30px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            slideInLeft: {
+              '0%': { opacity: '0', transform: 'translateX(-30px)' },
+              '100%': { opacity: '1', transform: 'translateX(0)' },
+            },
+            slideInRight: {
+              '0%': { opacity: '0', transform: 'translateX(30px)' },
+              '100%': { opacity: '1', transform: 'translateX(0)' },
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-20px)' },
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .gradient-bg {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #0f172a 100%);
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .dark .glass-card {
+      background: rgba(17, 24, 39, 0.8);
+      border: 1px solid rgba(55, 65, 81, 0.5);
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -28px;
+      top: 8px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+    }
+    .timeline-item::after {
+      content: '';
+      position: absolute;
+      left: -23px;
+      top: 24px;
+      width: 2px;
+      height: calc(100% - 8px);
+      background: linear-gradient(to bottom, #3b82f6, #e5e7eb);
+    }
+    .dark .timeline-item::after {
+      background: linear-gradient(to bottom, #3b82f6, #374151);
+    }
+    .timeline-item:last-child::after {
+      display: none;
+    }
+    .news-card {
+      position: relative;
+      background: white;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+    .dark .news-card {
+      background: rgba(30, 41, 59, 0.8);
+    }
+    .news-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    }
+    .news-card .timeline-number {
+      position: absolute;
+      top: -12px;
+      left: 16px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    #news-container > .news-card:nth-child(1) .timeline-number { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+    #news-container > .news-card:nth-child(2) .timeline-number { background: linear-gradient(135deg, #8b5cf6, #a855f7); }
+    #news-container > .news-card:nth-child(3) .timeline-number { background: linear-gradient(135deg, #a855f7, #d946ef); }
+    #news-container > .news-card:nth-child(4) .timeline-number { background: linear-gradient(135deg, #d946ef, #ec4899); }
+    #news-container > .news-card:nth-child(5) .timeline-number { background: linear-gradient(135deg, #ec4899, #f43f5e); }
+    #news-container > .news-card:nth-child(6) .timeline-number { background: linear-gradient(135deg, #f43f5e, #f97316); }
+    #news-container > .news-card:nth-child(7) .timeline-number { background: linear-gradient(135deg, #f97316, #eab308); }
+    #news-container > .news-card:nth-child(8) .timeline-number { background: linear-gradient(135deg, #eab308, #84cc16); }
+    #news-container > .news-card:nth-child(9) .timeline-number { background: linear-gradient(135deg, #84cc16, #22c55e); }
+    #news-container > .news-card:nth-child(10) .timeline-number { background: linear-gradient(135deg, #22c55e, #14b8a6); }
+    #news-container > .news-card:nth-child(11) .timeline-number { background: linear-gradient(135deg, #14b8a6, #06b6d4); }
+    #news-container > .news-card:nth-child(12) .timeline-number { background: linear-gradient(135deg, #06b6d4, #3b82f6); }
+    .news-card .timeline-date {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+    .toc-item.active {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+      color: #3b82f6;
+      font-weight: 600;
+    }
+    .dark .toc-item.active {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+      color: #60a5fa;
+    }
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-hover:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    .dark .card-hover:hover {
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    .nav-link {
+      position: relative;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      transition: width 0.3s ease;
+    }
+    .nav-link:hover::after,
+    .nav-link.active::after {
+      width: 100%;
+    }
+    .hero-bg {
+      background: radial-gradient(ellipse at top, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                  radial-gradient(ellipse at bottom right, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+    }
+    .dark .hero-bg {
+      background: radial-gradient(ellipse at top, rgba(59, 130, 246, 0.2) 0%, transparent 50%),
+                  radial-gradient(ellipse at bottom right, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+    }
+    .tech-grid {
+      background-image: 
+        linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+    .dark .tech-grid {
+      background-image: 
+        linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+    }
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease-out;
+    }
+    .animate-on-scroll.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .tag {
+      transition: all 0.2s ease;
+    }
+    .tag:hover {
+      transform: scale(1.05);
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #3b82f6, #8b5cf6);
+      border-radius: 4px;
+    }
+    .dark ::-webkit-scrollbar-track {
+      background: #1f2937;
+    }
+    .mobile-menu {
+      transform: translateX(100%);
+      transition: transform 0.3s ease-in-out;
+    }
+    .mobile-menu.open {
+      transform: translateX(0);
+    }
+        .collapsible-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease-out, opacity 0.3s ease;
+      opacity: 0;
+    }
+    .collapsible-content.expanded {
+      max-height: 3000px;
+      opacity: 1;
+    }
+    .collapse-btn {
+      transition: transform 0.3s ease;
+    }
+    .collapse-btn.collapsed {
+      transform: rotate(-180deg);
+    }
+    .toc-item {
+      position: relative;
+      padding-left: 1rem;
+      border-left: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .toc-item:hover,
+    .toc-item.active {
+      border-left-color: #3b82f6;
+      background: rgba(59, 130, 246, 0.05);
+    }
+    .dark .toc-item:hover,
+    .dark .toc-item.active {
+      background: rgba(59, 130, 246, 0.1);
+    }
+    .project-header {
+      height: 80px;
+      min-height: 80px;
+    }
+    .publication-item {
+      transition: all 0.3s ease;
+    }
+    .publication-item:hover {
+      background: rgba(59, 130, 246, 0.05);
+    }
+    .dark .publication-item:hover {
+      background: rgba(59, 130, 246, 0.1);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-dark-bg text-slate-800 dark:text-slate-200 transition-colors duration-300">
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="#hero" class="flex items-center space-x-2 group">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:shadow-primary-500/30 transition-shadow">
+            F
+          </div>
+          <span class="font-semibold text-lg text-slate-800 dark:text-white hidden sm:block" id="nav-name">Fukang Zhang</span>
+        </a>
+        <div class="hidden md:flex items-center space-x-8">
+          <a href="#about" class="nav-link text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors" data-i18n="nav.about">About</a>
+          <a href="#news" class="nav-link text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors" data-i18n="nav.news">News</a>
+          <a href="#projects" class="nav-link text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors" data-i18n="nav.projects">Projects</a>
+          <a href="#publications" class="nav-link text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors" data-i18n="nav.publications">Publications</a>
+        </div>
+        <div class="flex items-center space-x-3">
+          <button id="lang-toggle" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+            EN
+          </button>
+          <button id="theme-toggle" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+            <i class="fas fa-moon dark:hidden"></i>
+            <i class="fas fa-sun hidden dark:inline"></i>
+          </button>
+          <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+            <i class="fas fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div id="mobile-menu" class="mobile-menu fixed inset-y-0 right-0 w-64 bg-white dark:bg-dark-card shadow-2xl z-50 md:hidden">
+    <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+      <span class="font-semibold text-lg" data-i18n="nav.menu">Menu</span>
+      <button id="close-menu" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <i class="fas fa-times text-xl"></i>
+      </button>
+    </div>
+    <div class="p-4 space-y-4">
+      <a href="#about" class="block py-2 px-4 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 font-medium" data-i18n="nav.about">About</a>
+      <a href="#news" class="block py-2 px-4 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 font-medium" data-i18n="nav.news">News</a>
+      <a href="#projects" class="block py-2 px-4 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 font-medium" data-i18n="nav.projects">Projects</a>
+      <a href="#publications" class="block py-2 px-4 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 font-medium" data-i18n="nav.publications">Publications</a>
+    </div>
+  </div>
+  <div id="menu-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
+  <section id="hero" class="min-h-screen flex items-center hero-bg tech-grid relative overflow-hidden">
+    <div class="absolute top-20 right-10 w-72 h-72 bg-primary-500/10 rounded-full blur-3xl animate-pulse-slow"></div>
+    <div class="absolute bottom-20 left-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 1s;"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+        <div class="space-y-8 animate-on-scroll">
+          <div class="inline-flex items-center px-4 py-2 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-sm font-medium">
+            <i class="fas fa-graduation-cap mr-2"></i>
+            <span data-i18n="hero.badge">Graduate Student @ Beihang University</span>
+          </div>
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
+            <span class="text-slate-900 dark:text-white" data-i18n="hero.greeting">Hi, I'm</span>
+            <span class="gradient-text block mt-2">Fukang Zhang</span>
+          </h1>
+          <p class="text-lg sm:text-xl text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl" data-i18n="hero.description">
+            A passionate researcher focusing on Scheduling Algorithms, Large Language Models, and Software Development. Currently pursuing my Master's degree at Beihang University.
+          </p>
+          <div class="flex flex-wrap gap-4">
+            <a href="#projects" class="inline-flex items-center px-6 py-3 rounded-xl bg-gradient-to-r from-primary-600 to-purple-600 text-white font-semibold shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 transition-all hover:-translate-y-1">
+              <i class="fas fa-rocket mr-2"></i>
+              <span data-i18n="hero.viewProjects">View Projects</span>
+            </a>
+            <a href="#about" class="inline-flex items-center px-6 py-3 rounded-xl border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-all hover:-translate-y-1">
+              <i class="fas fa-user mr-2"></i>
+              <span data-i18n="hero.aboutMe">About Me</span>
+            </a>
+          </div>
+          <div class="flex items-center space-x-6 pt-4">
+            <a href="https://github.com/BUAAZFK" target="_blank" class="flex items-center space-x-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+              <i class="fab fa-github text-2xl"></i>
+              <span class="font-medium">GitHub</span>
+            </a>
+            <a href="mailto:zhangfukang@buaa.edu.cn" class="flex items-center space-x-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+              <i class="fas fa-envelope text-2xl"></i>
+              <span class="font-medium">Email</span>
+            </a>
+          </div>
+        </div>
+        <div class="relative flex justify-center lg:justify-end animate-on-scroll" style="animation-delay: 0.2s;">
+          <div class="relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-primary-500 to-purple-600 rounded-3xl transform rotate-6 scale-105 opacity-20"></div>
+            <div class="relative w-64 h-64 sm:w-80 sm:h-80 rounded-3xl overflow-hidden shadow-2xl border-4 border-white dark:border-slate-700">
+              <img src="./assets/zfk2.jpg" alt="Fukang Zhang" class="w-full h-full object-cover">
+            </div>
+            <div class="absolute -bottom-4 -right-4 bg-white dark:bg-dark-card rounded-2xl shadow-xl p-4 animate-float">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center">
+                  <i class="fas fa-code text-white"></i>
+                </div>
+                <div>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">Focus</p>
+                  <p class="font-semibold text-slate-800 dark:text-white text-sm">LLMs & Agent</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+      <a href="#about" class="text-slate-400 hover:text-primary-500 transition-colors">
+        <i class="fas fa-chevron-down text-2xl"></i>
+      </a>
+    </div>
+  </section>
+
+  <section id="about" class="py-20 bg-white dark:bg-dark-card relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16 animate-on-scroll">
+        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-4" data-i18n="about.title">About Me</h2>
+        <div class="w-20 h-1 bg-gradient-to-r from-primary-500 to-purple-600 mx-auto rounded-full"></div>
+      </div>
+      <div class="grid lg:grid-cols-2 gap-12 items-start">
+        <div class="space-y-6 animate-on-scroll">
+          <p class="text-lg text-slate-600 dark:text-slate-400 leading-relaxed" data-i18n="about.description">
+            I am Fukang Zhang, currently a postgraduate in the National Superior College for Engineers at Beihang University. My research direction is scheduling algorithm and I am interested in the LLMs and software development especially the front end. My undergraduate major is Information management and information system.
+          </p>
+          <div class="space-y-4">
+            <div class="flex items-start space-x-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+              <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-flask text-primary-600 dark:text-primary-400 text-xl"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold text-slate-800 dark:text-white mb-1" data-i18n="about.researchInterests">Research Interests</h4>
+                <p class="text-slate-600 dark:text-slate-400">Scheduling Algorithm, LLMs, Agent Development, Software Development</p>
+              </div>
+            </div>
+            <div class="flex items-start space-x-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+              <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-briefcase text-purple-600 dark:text-purple-400 text-xl"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold text-slate-800 dark:text-white mb-1" data-i18n="about.internship">Internship</h4>
+                <p class="text-slate-600 dark:text-slate-400">AVIC-DIGITAL (03/2024 - Present)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-6 animate-on-scroll" style="animation-delay: 0.2s;">
+          <h3 class="text-xl font-bold text-slate-800 dark:text-white flex items-center">
+            <i class="fas fa-graduation-cap text-primary-500 mr-3"></i>
+            <span data-i18n="about.education">Education</span>
+          </h3>
+          <div class="space-y-4">
+            <div class="relative pl-8 pb-6 border-l-2 border-primary-200 dark:border-slate-700">
+              <div class="absolute left-0 top-0 w-4 h-4 -translate-x-1/2 rounded-full bg-gradient-to-br from-primary-500 to-purple-600"></div>
+              <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="px-3 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-semibold">MEng</span>
+                  <span class="text-sm text-slate-500 dark:text-slate-400">2024 - 2027</span>
+                </div>
+                <h4 class="font-semibold text-slate-800 dark:text-white">Beihang University</h4>
+                <p class="text-sm text-slate-600 dark:text-slate-400" data-i18n="about.masterDesc">National Superior College for Engineers</p>
+              </div>
+            </div>
+            <div class="relative pl-8 border-l-2 border-primary-200 dark:border-slate-700">
+              <div class="absolute left-0 top-0 w-4 h-4 -translate-x-1/2 rounded-full bg-gradient-to-br from-primary-500 to-purple-600"></div>
+              <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold">BMgt</span>
+                  <span class="text-sm text-slate-500 dark:text-slate-400">2020 - 2024</span>
+                </div>
+                <h4 class="font-semibold text-slate-800 dark:text-white">Beihang University</h4>
+                <p class="text-sm text-slate-600 dark:text-slate-400" data-i18n="about.bachelorDesc">Information Management and Information System</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="news" class="py-20 bg-slate-50 dark:bg-dark-bg relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16 animate-on-scroll">
+        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-4" data-i18n="news.title">News & Awards</h2>
+        <div class="w-20 h-1 bg-gradient-to-r from-primary-500 to-purple-600 mx-auto rounded-full"></div>
+        <p class="mt-4 text-slate-600 dark:text-slate-400" data-i18n="news.subtitle">Chronological timeline of achievements and milestones</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto" id="news-container">
+        <div class="news-card animate-on-scroll pt-6">
+          <div class="timeline-number">1</div>
+          <span class="timeline-date bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300">12/2025</span>
+          <div class="flex items-center space-x-2 mb-3">
+            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">Top 10</span>
+          </div>
+          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item12">第五届智能制造创新大赛"AI+制造"赛道三等奖（全国第10名）</p>
+        </div>
+        <div class="news-card animate-on-scroll pt-6">
+          <div class="timeline-number">2</div>
+          <span class="timeline-date bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">11/2024</span>
+          <div class="flex items-center space-x-2 mb-3">
+            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">Bronze</span>
+          </div>
+          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item11">We won the Bronze Award in the "Challenge Cup" Capital University Student Entrepreneurship Plan Competition</p>
+        </div>
+        <div class="news-card animate-on-scroll pt-6">
+          <div class="timeline-number">3</div>
+          <span class="timeline-date bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300">06/2023</span>
+          <div class="flex items-center space-x-2 mb-3">
+            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">Honor</span>
+          </div>
+          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item10">I was awarded as Outstanding Graduate of BUAA</p>
+        </div>
+        <div class="news-card animate-on-scroll pt-6">
+          <div class="timeline-number">4</div>
+          <span class="timeline-date bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300">12/2023</span>
+          <div class="flex items-center space-x-2 mb-3">
+            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400">Star</span>
+          </div>
+          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item9">I won the "Star of Science and Technology Innovation" in the School of Economics and Management at BUAA</p>
+        </div>
+        <div class="news-card animate-on-scroll pt-6 news-more-item hidden">
+          <div class="timeline-number">5</div>
+          <span class="timeline-date bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300">11/2023</span>
+          <div class="flex items-center space-x-2 mb-3">
+            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">2nd Prize</span>
+          </div>
+          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item8">We won the second prize at Beijing College students Engineering Practice and Innovation Ability Competition</p>
+        </div>
+        <div class="news-card animate-on-scroll pt-6 news-more-item hidden">
+          <div class="timeline-number">6</div>
+          <span class="timeline-date bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">08/2023</span>
+          <div class="flex items-center space-x-2 mb-3">
+            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">1st Prize</span>
+          </div>
+          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item7">We won the first prize at the 9th China "Internet+" Innovation and Entrepreneurship Competition (Beijing)</p>
+        </div>
+        <div class="news-card animate-on-scroll pt-6 news-more-item hidden">
+          <div class="timeline-number">7</div>
+          <span class="timeline-date bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300">05/2023</span>
+          <div class="flex items-center space-x-2 mb-3">
+            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">2nd Prize</span>
+          </div>
+          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item6">I won the second prize in the Blue Bridge Cup python programming project</p>
+        </div>
+        <div class="news-card animate-on-scroll pt-6 news-more-item hidden">
+          <div class="timeline-number">8</div>
+          <span class="timeline-date bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-300">05/2023</span>
+          <div class="flex items-center space-x-2 mb-3">
+            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">Honorable</span>
+          </div>
+          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item5">We won the Honorable prize in the MCM/ICM</p>
+        </div>
+        <div class="news-card animate-on-scroll pt-6 news-more-item hidden">
+          <div class="timeline-number">9</div>
+          <span class="timeline-date bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">05/2022</span>
+          <div class="flex items-center space-x-2 mb-3">
+            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">Honorable</span>
+          </div>
+          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item4">We won the Honorable prize in the MCM/ICM</p>
+        </div>
+        <div class="news-card animate-on-scroll pt-6 news-more-item hidden">
+          <div class="timeline-number">10</div>
+          <span class="timeline-date bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300">04/2022</span>
+          <div class="flex items-center space-x-2 mb-3">
+            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">2nd Prize</span>
+          </div>
+          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item3">I won the second prize in the 1st National College Student Data Analysis Competition</p>
+        </div>
+        <div class="news-card animate-on-scroll pt-6 news-more-item hidden">
+          <div class="timeline-number">11</div>
+          <span class="timeline-date bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300">12/2021</span>
+          <div class="flex items-center space-x-2 mb-3">
+            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">1st Prize</span>
+          </div>
+          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item2">I won the first prize in the National Mathematics Competition for college students</p>
+        </div>
+        <div class="news-card animate-on-scroll pt-6 news-more-item hidden">
+          <div class="timeline-number">12</div>
+          <span class="timeline-date bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300">11/2021</span>
+          <div class="flex items-center space-x-2 mb-3">
+            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">Honor</span>
+          </div>
+          <p class="text-slate-700 dark:text-slate-300" data-i18n="news.item1">Awarded "Outstanding Students Cadre" by BeiHang University</p>
+        </div>
+      </div>
+      <button id="news-toggle" class="w-full mt-8 py-3 px-6 rounded-xl bg-white dark:bg-dark-card shadow-sm hover:shadow-md transition-all flex items-center justify-center space-x-2 text-primary-600 dark:text-primary-400 font-medium max-w-6xl mx-auto">
+        <span data-i18n="common.showMore">Show More</span>
+        <i class="fas fa-chevron-down collapse-btn"></i>
+      </button>
+    </div>
+  </section>
+
+  <section id="projects" class="py-20 bg-white dark:bg-dark-card relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16 animate-on-scroll">
+        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-4" data-i18n="projects.title">Projects</h2>
+        <div class="w-20 h-1 bg-gradient-to-r from-primary-500 to-purple-600 mx-auto rounded-full"></div>
+        <p class="mt-4 text-slate-600 dark:text-slate-400 max-w-2xl mx-auto" data-i18n="projects.subtitle">A showcase of my research and development work</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl overflow-hidden card-hover animate-on-scroll">
+          <div class="h-20 bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center">
+            <i class="fas fa-robot text-3xl text-white/80"></i>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-3" data-i18n="projects.project1.title">Interactive Production Scheduling Agent for Aviation Manufacturing</h3>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="tag px-3 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-medium">LLM</span>
+              <span class="tag px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium">Agent</span>
+              <span class="tag px-3 py-1 rounded-full bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs font-medium">LangGraph</span>
+              <span class="tag px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium">FastAPI</span>
+              <span class="tag px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium">APS</span>
+            </div>
+            <p class="text-slate-600 dark:text-slate-400 text-sm mb-4" data-i18n="projects.project1.desc">Developed an intelligent scheduling agent for discrete manufacturing scenarios in aviation. Implemented automatic tool registration, parameter dependency resolution, and natural language-driven operations using LangGraph and MCP.</p>
+            <div class="flex items-center text-sm text-slate-500 dark:text-slate-400">
+              <i class="fas fa-calendar mr-2"></i>
+              <span>2024.08 - 2027.06</span>
+            </div>
+            <div class="mt-4">
+              <img src="./assets/APS.png" alt="FJSP Project" class="w-full rounded-lg shadow-sm">
+            </div>
+          </div>
+        </div>
+        <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl overflow-hidden card-hover animate-on-scroll" style="animation-delay: 0.1s;">
+          <div class="h-20 bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+            <i class="fas fa-project-diagram text-3xl text-white/80"></i>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-3" data-i18n="projects.project2.title">FJSP Based on Graph Neural Network and Deep Reinforcement Learning</h3>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="tag px-3 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-medium">DRL</span>
+              <span class="tag px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium">GNN</span>
+              <span class="tag px-3 py-1 rounded-full bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs font-medium">FJSP</span>
+            </div>
+            <p class="text-slate-600 dark:text-slate-400 text-sm mb-4" data-i18n="projects.project2.desc">Bachelor's thesis: Innovated state representation for scheduling problems using graph structures. Designed policy and value networks under Actor-Critic framework, adapting to problems of different scales.</p>
+            <div class="flex items-center text-sm text-slate-500 dark:text-slate-400">
+              <i class="fas fa-calendar mr-2"></i>
+              <span>2023.09 - 2024.06</span>
+            </div>
+            <div class="mt-4">
+              <img src="./assets/FJSP-Thesis.png" alt="FJSP Project" class="w-full rounded-lg shadow-sm">
+            </div>
+          </div>
+        </div>
+        <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl overflow-hidden card-hover animate-on-scroll" style="animation-delay: 0.2s;">        
+        <!-- <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl overflow-hidden card-hover animate-on-scroll projects-more-item hidden" style="animation-delay: 0.2s;"></div> -->
+          <div class="h-20 bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+            <i class="fas fa-database text-3xl text-white/80"></i>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-3" data-i18n="projects.project3.title">Federated Learning Based Data Trading Platform</h3>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="tag px-3 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-medium">Python</span>
+              <span class="tag px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium">Django</span>
+              <span class="tag px-3 py-1 rounded-full bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs font-medium">Blockchain</span>
+              <span class="tag px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium">FL</span>
+            </div>
+            <p class="text-slate-600 dark:text-slate-400 text-sm mb-4" data-i18n="projects.project3.desc">9th China "Internet+" Competition Project: Implemented multi-party trading with federated learning architecture. Achieved data circulation without data leaving local domain. Won 1st Prize in Beijing.</p>
+            <div class="flex items-center text-sm text-slate-500 dark:text-slate-400">
+              <i class="fas fa-calendar mr-2"></i>
+              <span>2023.06 - 2023.08</span>
+            </div>
+            <div class="mt-4">
+              <video src="./assets/dataTran.mp4" type="video/mp4" controls class="w-full rounded-lg shadow-sm"></video>
+            </div>
+          </div>
+        </div>
+        <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl overflow-hidden card-hover animate-on-scroll" style="animation-delay: 0.3s;">
+          <div class="h-20 bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center">
+            <i class="fas fa-tags text-3xl text-white/80"></i>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-3" data-i18n="projects.project4.title">Data Annotation Crowdsourcing Platform</h3>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="tag px-3 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-medium">Django</span>
+              <span class="tag px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium">Python</span>
+              <span class="tag px-3 py-1 rounded-full bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs font-medium">MySQL</span>
+              <span class="tag px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium">Bootstrap</span>
+            </div>
+            <p class="text-slate-600 dark:text-slate-400 text-sm mb-4" data-i18n="projects.project4.desc">Built a crowdsourcing platform with 15+ entities, 20+ features, 50+ APIs, and 10+ frontend pages. Deployed using Nginx, uWSGI, and Alibaba Cloud. Achieved real-time annotation result synchronization.</p>
+            <div class="flex items-center text-sm text-slate-500 dark:text-slate-400">
+              <i class="fas fa-calendar mr-2"></i>
+              <span>2023.03 - 2023.06</span>
+            </div>
+            <div class="mt-4">
+              <img src="./assets/dataannoation.png" alt="Data Annotation Platform" class="w-full rounded-lg shadow-sm">
+            </div>
+          </div>
+        </div>
+      </div>
+      <button id="projects-toggle" class="w-full mt-8 py-3 px-6 rounded-xl bg-slate-50 dark:bg-slate-800/50 shadow-sm hover:shadow-md transition-all flex items-center justify-center space-x-2 text-primary-600 dark:text-primary-400 font-medium">
+        <span data-i18n="common.showMore">Show More</span>
+        <i class="fas fa-chevron-down collapse-btn"></i>
+      </button>
+    </div>
+  </section>
+
+  <section id="publications" class="py-20 bg-slate-50 dark:bg-dark-bg relative"> 
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16 animate-on-scroll">
+        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-4" data-i18n="publications.title">Publications</h2>
+        <div class="w-20 h-1 bg-gradient-to-r from-primary-500 to-purple-600 mx-auto rounded-full"></div>
+        <p class="mt-4 text-slate-600 dark:text-slate-400 max-w-2xl mx-auto" data-i18n="publications.subtitle">My academic contributions and patents</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+        <div class="bg-white dark:bg-dark-card rounded-2xl p-6 shadow-sm card-hover animate-on-scroll">
+          <div class="flex items-start space-x-4">
+            <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-file-alt text-primary-600 dark:text-primary-400 text-xl"></i>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center space-x-2 mb-2">
+                <span class="px-3 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-semibold">Conference</span>
+              </div>
+              <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">A Blockchain-Based Predictive Maintenance Framework</h3>
+              <p class="text-slate-600 dark:text-slate-400 text-sm mb-2">
+                <strong>Authors:</strong> L. Qingmiao, <strong>Z. Fukang</strong> and Q. qi
+              </p>
+              <p class="text-slate-500 dark:text-slate-500 text-sm mb-3">
+                2025 International Conference on Artificial Intelligence and Industrial Technology Applications
+              </p>
+              <a href="https://ieeexplore.ieee.org/document/11047772" target="_blank" class="inline-flex items-center text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium text-sm transition-colors">
+                <i class="fas fa-external-link-alt mr-2"></i>
+                View Paper
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white dark:bg-dark-card rounded-2xl p-6 shadow-sm card-hover animate-on-scroll" style="animation-delay: 0.1s;">
+          <div class="flex items-start space-x-4">
+            <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-lightbulb text-purple-600 dark:text-purple-400 text-xl"></i>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center space-x-2 mb-2">
+                <span class="px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold">Patent</span>
+              </div>
+              <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">一种融合大模型和故障树增强的智能排故协同方法</h3>
+              <p class="text-slate-600 dark:text-slate-400 text-sm mb-2">
+                <strong>Authors:</strong> 廖庆妙, 杨威, 栾峰, 王博, 尹航晨, <strong>张福康</strong>
+              </p>
+              <p class="text-slate-500 dark:text-slate-500 text-sm">
+                Patent No: CN202510847410.8
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white dark:bg-dark-card rounded-2xl p-6 shadow-sm card-hover animate-on-scroll publications-more-item hidden" style="animation-delay: 0.2s;">
+          <div class="flex items-start space-x-4">
+            <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-lightbulb text-purple-600 dark:text-purple-400 text-xl"></i>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center space-x-2 mb-2">
+                <span class="px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold">Patent</span>
+              </div>
+              <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">一种基于大模型的作业车间调度方法</h3>
+              <p class="text-slate-600 dark:text-slate-400 text-sm mb-2">
+                <strong>Authors:</strong> 廖庆妙, 张伦彦, <strong>张福康</strong>, 方鹏程
+              </p>
+              <p class="text-slate-500 dark:text-slate-500 text-sm">
+                Patent No: CN202511458893.9
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button id="publications-toggle" class="w-full mt-8 py-3 px-6 rounded-xl bg-white dark:bg-dark-card shadow-sm hover:shadow-md transition-all flex items-center justify-center space-x-2 text-primary-600 dark:text-primary-400 font-medium max-w-6xl mx-auto">
+        <span data-i18n="common.showMore">Show More</span>
+        <i class="fas fa-chevron-down collapse-btn"></i>
+      </button>
+    </div>
+  </section>
+
+  <!-- <div id="floating-toc" class="fixed z-40 hidden lg:block" style="right: 0; top: 50%; transform: translateY(-50%);">
+    <div id="toc-toggle" class="absolute -left-12 top-1/2 -translate-y-1/2 w-10 h-10 bg-gradient-to-br from-primary-500 to-purple-600 rounded-l-xl shadow-lg cursor-pointer flex items-center justify-center hover:w-12 transition-all duration-300 group">
+      <i class="fas fa-list text-white text-lg"></i>
+      <span class="absolute left-full ml-2 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">目录</span>
+    </div>
+    <div id="toc-panel" class="bg-white dark:bg-dark-card rounded-l-2xl shadow-lg p-4 border border-r-0 border-slate-200 dark:border-slate-700 transform translate-x-full transition-transform duration-300">
+      <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-200 dark:border-slate-700">
+        <span class="text-sm font-semibold text-slate-700 dark:text-slate-300" data-i18n="toc.title">目录</span>
+        <div class="flex items-center space-x-2">
+          <button id="toc-drag-handle" class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-primary-500 cursor-move" title="拖拽移动">
+            <i class="fas fa-grip-vertical text-xs"></i>
+          </button>
+          <button id="toc-close" class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-red-500">
+            <i class="fas fa-times text-xs"></i>
+          </button>
+        </div>
+      </div>
+      <nav class="space-y-2">
+        <a href="#about" class="toc-item block py-2 px-3 rounded-lg text-sm text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors" data-i18n="nav.about">About</a>
+        <a href="#news" class="toc-item block py-2 px-3 rounded-lg text-sm text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors" data-i18n="nav.news">News</a>
+        <a href="#projects" class="toc-item block py-2 px-3 rounded-lg text-sm text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors" data-i18n="nav.projects">Projects</a>
+        <a href="#publications" class="toc-item block py-2 px-3 rounded-lg text-sm text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors" data-i18n="nav.publications">Publications</a>
+      </nav>
+    </div>
+  </div> -->
+
+  <footer class="py-12 bg-slate-900 dark:bg-dark-card text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center justify-between">
+        <div class="flex items-center space-x-2 mb-4 md:mb-0">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+            F
+          </div>
+          <span class="font-semibold text-lg">Fukang Zhang</span>
+        </div>
+        <div class="flex items-center space-x-6 mb-4 md:mb-0">
+          <a href="https://github.com/BUAAZFK" target="_blank" class="text-slate-400 hover:text-white transition-colors">
+            <i class="fab fa-github text-xl"></i>
+          </a>
+          <a href="mailto:zhangfukang@buaa.edu.cn" class="text-slate-400 hover:text-white transition-colors">
+            <i class="fas fa-envelope text-xl"></i>
+          </a>
+        </div>
+        <p class="text-slate-400 text-sm">
+          © 2024 Fukang Zhang. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const translations = {
+      en: {
+        nav: {
+          about: 'About',
+          news: 'News',
+          projects: 'Projects',
+          publications: 'Publications',
+          menu: 'Menu'
+        },
+        toc: {
+          title: 'Contents'
+        },
+        hero: {
+          badge: 'Graduate Student @ Beihang University',
+          greeting: "Hi, I'm",
+          description: "A passionate researcher focusing on Scheduling Algorithms, Large Language Models, and Software Development. Currently pursuing my Master's degree at Beihang University.",
+          viewProjects: 'View Projects',
+          aboutMe: 'About Me'
+        },
+        about: {
+          title: 'About Me',
+          description: 'I am Fukang Zhang, currently a postgraduate in the National Superior College for Engineers at Beihang University. My research direction is scheduling algorithm and I am interested in the LLMs and software development especially the front end. My undergraduate major is Information management and information system.',
+          researchInterests: 'Research Interests',
+          internship: 'Internship',
+          education: 'Education',
+          masterDesc: 'National Superior College for Engineers',
+          bachelorDesc: 'Information Management and Information System'
+        },
+        news: {
+          title: 'News & Awards',
+          subtitle: 'Chronological timeline of achievements and milestones',
+          item12: '3rd Prize in the 5th Intelligent Manufacturing Innovation Competition "AI+Manufacturing" Track (National Top 10)',
+          item11: 'We won the Bronze Award in the "Challenge Cup" Capital University Student Entrepreneurship Plan Competition',
+          item10: 'I was awarded as Outstanding Graduate of BUAA',
+          item9: 'I won the "Star of Science and Technology Innovation" in the School of Economics and Management at BUAA',
+          item8: 'We won the second prize at Beijing College students Engineering Practice and Innovation Ability Competition',
+          item7: 'We won the first prize at the 9th China "Internet+" Innovation and Entrepreneurship Competition (Beijing)',
+          item6: 'I won the second prize in the Blue Bridge Cup python programming project',
+          item5: 'We won the Honorable prize in the MCM/ICM',
+          item4: 'We won the Honorable prize in the MCM/ICM',
+          item3: 'I won the second prize in the 1st National College Student Data Analysis Competition',
+          item2: 'I won the first prize in the National Mathematics Competition for college students',
+          item1: 'Awarded "Outstanding Students Cadre" by BeiHang University'
+        },
+        projects: {
+          title: 'Projects',
+          subtitle: 'A showcase of my research and development work',
+          project1: {
+            title: 'Interactive Production Scheduling Agent for Aviation Manufacturing',
+            desc: 'Developed an intelligent scheduling agent for discrete manufacturing scenarios in aviation. Implemented automatic tool registration, parameter dependency resolution, and natural language-driven operations using LangGraph and MCP.'
+          },
+          project2: {
+            title: 'FJSP Based on Graph Neural Network and Deep Reinforcement Learning',
+            desc: "Bachelor's thesis: Innovated state representation for scheduling problems using graph structures. Designed policy and value networks under Actor-Critic framework, adapting to problems of different scales."
+          },
+          project3: {
+            title: 'Federated Learning Based Data Trading Platform',
+            desc: '9th China "Internet+" Competition Project: Implemented multi-party trading with federated learning architecture. Achieved data circulation without data leaving local domain. Won 1st Prize in Beijing.'
+          },
+          project4: {
+            title: 'Data Annotation Crowdsourcing Platform',
+            desc: 'Built a crowdsourcing platform with 15+ entities, 20+ features, 50+ APIs, and 10+ frontend pages. Deployed using Nginx, uWSGI, and Alibaba Cloud. Achieved real-time annotation result synchronization.'
+          }
+        },
+        publications: {
+          title: 'Publications',
+          subtitle: 'My academic contributions and patents'
+        },
+        common: {
+          showMore: 'Show More',
+          showLess: 'Show Less'
+        }
+      },
+      zh: {
+        nav: {
+          about: '关于',
+          news: '动态',
+          projects: '项目',
+          publications: '论文',
+          menu: '菜单'
+        },
+        toc: {
+          title: '目录'
+        },
+        hero: {
+          badge: '北京航空航天大学 研究生',
+          greeting: '你好，我是',
+          description: '专注于调度算法、大语言模型和软件开发的研究者。目前在北京航空航天大学攻读硕士学位。',
+          viewProjects: '查看项目',
+          aboutMe: '了解更多'
+        },
+        about: {
+          title: '关于我',
+          description: '我是张福康，目前是北京航空航天大学卓越工程师学院的一名研究生。我的研究方向是调度算法，我对大语言模型和软件开发特别前端开发很感兴趣。我的本科专业是信息管理与信息系统。',
+          researchInterests: '研究方向',
+          internship: '实习经历',
+          education: '教育经历',
+          masterDesc: '卓越工程师学院',
+          bachelorDesc: '信息管理与信息系统'
+        },
+        news: {
+          title: '新闻与荣誉',
+          subtitle: '按时间顺序展示的成就与里程碑',
+          item12: '第五届智能制造创新大赛"AI+制造"赛道三等奖（全国第10名）',
+          item11: '我们在"挑战杯"首都大学生创业计划竞赛中获得铜奖',
+          item10: '被评为北航优秀毕业生',
+          item9: '荣获北航经管学院"科技创新之星"称号',
+          item8: '在北京大学生工程实践与创新能力竞赛企业运营仿真竞赛中获得二等奖',
+          item7: '作为第一作者在第九届中国"互联网+"创新创业大赛中获得一等奖（北京市）',
+          item6: '在蓝桥杯Python编程项目中获得二等奖',
+          item5: '在美国大学生数学建模竞赛(MCM/ICM)中获得荣誉奖',
+          item4: '在美国大学生数学建模竞赛(MCM/ICM)中获得荣誉奖',
+          item3: '在全国大学生数据分析竞赛中获得二等奖',
+          item2: '在全国大学生数学竞赛中获得一等奖',
+          item1: '获北航"优秀学生干部"称号'
+        },
+        projects: {
+          title: '项目经历',
+          subtitle: '我的研究与开发工作展示',
+          project1: {
+            title: '面向航空制造的交互式生产调度智能体',
+            desc: '深入航空主机厂机载车间、总装线等典型离散制造场景，调研计划员日常排程痛点，提炼五大典型调度需求。基于LangGraph、FastAPI、Pydantic进行智能体和MCP开发，实现工具自动注册、参数依赖解析与幂等执行。'
+          },
+          project2: {
+            title: '基于图神经网络与深度强化学习的柔性作业车间调度',
+            desc: '本科毕业设计：结合图神经网络和深度强化学习方法，对车间调度问题的状态表征形式进行了创新。在Actor-Critic框架下设计策略网络和价值网络，适应不同规模的问题。'
+          },
+          project3: {
+            title: '基于联邦学习的数据交易平台设计',
+            desc: '第九届中国"互联网+"大学生创新创业大赛项目：实现多边交易的同时整合传统数据交易模式。采用联邦学习架构，在数据不出域的情况下实现数据资源流通和价值转化。获北京市一等奖。'
+          },
+          project4: {
+            title: '数据标注众包平台设计',
+            desc: '基于Python、Django框架、MySQL、BootStrap完成前端页面设计和数据交互。实现15+个实体设计、20+项功能、50+个后端API的编写、10+个前端页面制作。使用Nginx、uWSGI、阿里云服务器进行项目部署。'
+          }
+        },
+        publications: {
+          title: '学术成果',
+          subtitle: '我的论文与专利'
+        },
+        common: {
+          showMore: '展开更多',
+          showLess: '收起'
+        }
+      }
+    };
+
+    let currentLang = localStorage.getItem('locale') || 'en';
+
+    function updateLanguage() {
+      const t = translations[currentLang];
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const keys = key.split('.');
+        let value = t;
+        keys.forEach(k => {
+          value = value?.[k];
+        });
+        if (value) {
+          el.textContent = value;
+        }
+      });
+      document.getElementById('lang-toggle').textContent = currentLang === 'en' ? 'CN' : 'EN';
+      document.getElementById('nav-name').textContent = currentLang === 'en' ? 'Fukang Zhang' : '张福康';
+    }
+
+    document.getElementById('lang-toggle').addEventListener('click', () => {
+      currentLang = currentLang === 'en' ? 'zh' : 'en';
+      localStorage.setItem('locale', currentLang);
+      updateLanguage();
+    });
+
+    if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    }
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    });
+
+    const navbar = document.getElementById('navbar');
+    let lastScroll = 0;
+
+    window.addEventListener('scroll', () => {
+      const currentScroll = window.pageYOffset;
+      if (currentScroll > 50) {
+        navbar.classList.add('bg-white/90', 'dark:bg-dark-bg/90', 'backdrop-blur-lg', 'shadow-lg');
+      } else {
+        navbar.classList.remove('bg-white/90', 'dark:bg-dark-bg/90', 'backdrop-blur-lg', 'shadow-lg');
+      }
+      lastScroll = currentScroll;
+    });
+
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.animate-on-scroll').forEach(el => {
+      observer.observe(el);
+    });
+
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const closeMenuBtn = document.getElementById('close-menu');
+    const menuOverlay = document.getElementById('menu-overlay');
+
+    function openMobileMenu() {
+      mobileMenu.classList.add('open');
+      menuOverlay.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileMenu() {
+      mobileMenu.classList.remove('open');
+      menuOverlay.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    mobileMenuBtn.addEventListener('click', openMobileMenu);
+    closeMenuBtn.addEventListener('click', closeMobileMenu);
+    menuOverlay.addEventListener('click', closeMobileMenu);
+
+    document.querySelectorAll('#mobile-menu a').forEach(link => {
+      link.addEventListener('click', closeMobileMenu);
+    });
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
+
+    function setupCollapsible(toggleId, contentId, itemClass) {
+      const toggle = document.getElementById(toggleId);
+      if (!toggle) return;
+      
+      toggle.addEventListener('click', () => {
+        const isExpanded = toggle.classList.contains('expanded');
+        const items = document.querySelectorAll(`.${itemClass}`);
+        
+        items.forEach(item => {
+          if (isExpanded) {
+            item.classList.add('hidden');
+          } else {
+            item.classList.remove('hidden');
+          }
+        });
+        
+        toggle.classList.toggle('expanded');
+        toggle.querySelector('.collapse-btn').classList.toggle('collapsed');
+        
+        const spanEl = toggle.querySelector('span[data-i18n]');
+        if (spanEl) {
+          const key = isExpanded ? 'common.showMore' : 'common.showLess';
+          spanEl.setAttribute('data-i18n', key);
+          const t = translations[currentLang];
+          const keys = key.split('.');
+          let value = t;
+          keys.forEach(k => value = value?.[k]);
+          if (value) spanEl.textContent = value;
+        }
+      });
+    }
+
+    setupCollapsible('news-toggle', null, 'news-more-item');
+    setupCollapsible('projects-toggle', 'projects-more', 'projects-more-item');
+    setupCollapsible('publications-toggle', 'publications-more', 'publications-more-item');
+
+    const tocItems = document.querySelectorAll('.toc-item');
+    const sections = ['about', 'news', 'projects', 'publications'];
+
+    function updateTocHighlight() {
+      const scrollPos = window.scrollY + 200;
+      
+      sections.forEach(sectionId => {
+        const section = document.getElementById(sectionId);
+        if (!section) return;
+        
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.offsetHeight;
+        const tocLink = document.querySelector(`.toc-item[href="#${sectionId}"]`);
+        
+        if (tocLink) {
+          if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+            tocItems.forEach(item => item.classList.remove('active'));
+            tocLink.classList.add('active');
+          }
+        }
+      });
+    }
+
+    window.addEventListener('scroll', updateTocHighlight);
+    updateTocHighlight();
+
+    const floatingToc = document.getElementById('floating-toc');
+    const tocToggle = document.getElementById('toc-toggle');
+    const tocPanel = document.getElementById('toc-panel');
+    const tocClose = document.getElementById('toc-close');
+    const tocDragHandle = document.getElementById('toc-drag-handle');
+    
+    let tocExpanded = false;
+    let isDragging = false;
+    let dragStartX, dragStartY;
+    let tocStartX, tocStartY;
+
+    if (tocToggle && tocPanel) {
+      tocToggle.addEventListener('click', () => {
+        tocExpanded = !tocExpanded;
+        if (tocExpanded) {
+          tocPanel.classList.remove('translate-x-full');
+        } else {
+          tocPanel.classList.add('translate-x-full');
+        }
+      });
+    }
+
+    if (tocClose) {
+      tocClose.addEventListener('click', () => {
+        tocExpanded = false;
+        tocPanel.classList.add('translate-x-full');
+      });
+    }
+
+    if (tocDragHandle && floatingToc) {
+      tocDragHandle.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        const rect = floatingToc.getBoundingClientRect();
+        tocStartX = rect.left;
+        tocStartY = rect.top;
+        floatingToc.style.transition = 'none';
+        e.preventDefault();
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        
+        const deltaX = e.clientX - dragStartX;
+        const deltaY = e.clientY - dragStartY;
+        
+        let newX = tocStartX + deltaX;
+        let newY = tocStartY + deltaY;
+        
+        newX = Math.max(0, Math.min(newX, window.innerWidth - floatingToc.offsetWidth));
+        newY = Math.max(0, Math.min(newY, window.innerHeight - floatingToc.offsetHeight));
+        
+        floatingToc.style.left = newX + 'px';
+        floatingToc.style.top = newY + 'px';
+        floatingToc.style.right = 'auto';
+        floatingToc.style.transform = 'none';
+      });
+
+      document.addEventListener('mouseup', () => {
+        if (isDragging) {
+          isDragging = false;
+          floatingToc.style.transition = '';
+          
+          const rect = floatingToc.getBoundingClientRect();
+          if (rect.left < window.innerWidth / 2) {
+            floatingToc.style.left = '0';
+            floatingToc.style.right = 'auto';
+            if (tocToggle) {
+              tocToggle.classList.remove('-left-12', 'rounded-l-xl');
+              tocToggle.classList.add('-right-12', 'rounded-r-xl');
+            }
+            if (tocPanel) {
+              tocPanel.classList.remove('rounded-l-2xl', 'border-r-0');
+              tocPanel.classList.add('rounded-r-2xl', 'border-l-0');
+            }
+          } else {
+            floatingToc.style.left = 'auto';
+            floatingToc.style.right = '0';
+            if (tocToggle) {
+              tocToggle.classList.remove('-right-12', 'rounded-r-xl');
+              tocToggle.classList.add('-left-12', 'rounded-l-xl');
+            }
+            if (tocPanel) {
+              tocPanel.classList.remove('rounded-r-2xl', 'border-l-0');
+              tocPanel.classList.add('rounded-l-2xl', 'border-r-0');
+            }
+          }
+        }
+      });
+    }
+
+    updateLanguage();
+  </script>
+</body>
+</html>

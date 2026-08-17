@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HiDAPS × APS Agent · 面向航空制造的交互式生产调度智能体</title>
+<meta name="description" content="面向航空制造的交互式生产调度智能体研究：统一排产语义表征框架 HiDAPS + 基于约束归因链推理的 APS Agent，实现『发现问题 → 分析原因 → 选择策略 → 验证效果』的归因决策闭环。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230d1526'/%3E%3Cpath d='M28 30 L50 66 L72 30' fill='none' stroke='%2338bdf8' stroke-width='9' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M40 48 L60 48' stroke='%2322d3ee' stroke-width='9' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+/* ============ 基础 ============ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#04060d;--bg2:#070c1a;--bg3:#0c1428;--bg4:#122040;
+  --text:#e6f1ff;--text2:#94a9cc;--text3:#5b6f94;
+  --accent:#38bdf8;--accent2:#22d3ee;--gold:#fbbf24;--green:#34d399;--red:#f87171;--orange:#fb923c;--violet:#a78bfa;
+  --grad:linear-gradient(135deg,#38bdf8 0%,#22d3ee 100%);
+  --grad-gold:linear-gradient(135deg,#fbbf24 0%,#f97316 100%);
+  --grad-violet:linear-gradient(135deg,#a78bfa 0%,#38bdf8 100%);
+  --card:rgba(14,22,44,0.62);--card2:rgba(10,16,34,0.85);
+  --border:rgba(56,189,248,0.16);--border2:rgba(56,189,248,0.35);
+  --glow:0 0 40px rgba(34,211,238,0.15);
+  --radius:16px;--radius-sm:10px;
+  --font-mono:'JetBrains Mono','Fira Code',Consolas,'Courier New',monospace;
+}
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+body{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.75;overflow-x:hidden}
+::selection{background:rgba(56,189,248,0.35);color:#fff}
+a{color:var(--accent2);text-decoration:none}
+a:hover{color:#7df3ff}
+code{font-family:var(--font-mono);font-size:0.9em;color:var(--accent2);background:rgba(56,189,248,0.08);padding:0.1em 0.4em;border-radius:4px}
+h1,h2,h3{letter-spacing:0.02em}
+canvas#bg3d{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.9}
+
+/* 全局背景网格 */
+body::before{content:'';position:fixed;inset:0;z-index:-2;background:
+  radial-gradient(1200px 700px at 75% -10%,rgba(56,189,248,0.10),transparent 60%),
+  radial-gradient(900px 600px at 10% 110%,rgba(167,139,250,0.07),transparent 60%),
+  var(--bg)}
+body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background-image:linear-gradient(rgba(56,189,248,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,0.035) 1px,transparent 1px);
+  background-size:56px 56px;mask-image:radial-gradient(ellipse 90% 70% at 50% 0%,#000 30%,transparent 75%)}
+
+/* ============ 导航 ============ */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(4,6,13,0.78);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);transition:background .3s}
+.nav-inner{max-width:1240px;margin:0 auto;padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{display:flex;align-items:center;gap:.6rem;font-size:1.02rem;font-weight:800}
+.nav-brand .logo{width:30px;height:30px;border-radius:8px;background:var(--grad);display:grid;place-items:center;color:#04121f;font-size:.95rem;font-weight:900;box-shadow:0 0 16px rgba(34,211,238,.45)}
+.nav-brand b{background:linear-gradient(135deg,#7dd3fc,#22d3ee);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.nav-brand span{color:var(--text3);font-weight:600;font-size:.82rem}
+.nav-links{display:flex;gap:1.4rem;list-style:none}
+.nav-links a{color:var(--text2);font-size:.87rem;font-weight:500;position:relative;padding:.3rem 0;transition:color .2s}
+.nav-links a::after{content:'';position:absolute;left:0;bottom:-2px;width:0;height:2px;background:var(--grad);transition:width .25s;border-radius:2px}
+.nav-links a:hover,.nav-links a.active{color:var(--text)}
+.nav-links a:hover::after,.nav-links a.active::after{width:100%}
+.nav-cta{display:inline-flex;align-items:center;gap:.4rem;padding:.42rem 1.05rem;border-radius:50px;font-size:.8rem;font-weight:700;color:#04121f;background:var(--grad);transition:transform .2s,box-shadow .2s}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(34,211,238,.4);color:#04121f}
+.nav-toggle{display:none;background:none;border:none;color:var(--text);font-size:1.4rem;cursor:pointer;line-height:1}
+
+/* ============ Hero ============ */
+.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:9rem 2rem 3rem;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 70% 55% at 50% 42%,rgba(6,13,28,0.25),transparent 70%);pointer-events:none}
+.hero-content{position:relative;z-index:2;max-width:980px}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.42rem 1.1rem;border-radius:50px;border:1px solid var(--border2);background:rgba(14,22,44,.6);font-size:.78rem;color:var(--accent2);letter-spacing:.08em;font-weight:600;backdrop-filter:blur(8px);margin-bottom:1.8rem}
+.hero-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.hero h1{font-size:clamp(2rem,5vw,3.6rem);font-weight:900;line-height:1.22;margin-bottom:1.4rem;color:#f0f7ff}
+.hero h1 .g1{background:linear-gradient(135deg,#7dd3fc,#22d3ee 70%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero h1 .g2{background:linear-gradient(135deg,#fbbf24,#fb923c);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:clamp(.98rem,1.7vw,1.14rem);color:var(--text2);max-width:790px;margin:0 auto 2.2rem;line-height:1.95}
+.hero-sub strong{color:var(--text);font-weight:700}
+.hero-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:.9rem;margin-bottom:2.6rem}
+.btn{display:inline-flex;align-items:center;gap:.55rem;padding:.82rem 1.9rem;border-radius:50px;font-size:.95rem;font-weight:700;cursor:pointer;border:none;transition:all .28s;letter-spacing:.02em}
+.btn-primary{background:var(--grad);color:#04121f;box-shadow:0 4px 24px rgba(34,211,238,.35)}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 10px 34px rgba(34,211,238,.5)}
+.btn-outline{background:rgba(14,22,44,.5);color:var(--text);border:1px solid var(--border2);backdrop-filter:blur(6px)}
+.btn-outline:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 6px 20px rgba(56,189,248,.2)}
+.hero-stats{display:flex;flex-wrap:wrap;justify-content:center;gap:.7rem;position:relative;z-index:2}
+.hstat{display:inline-flex;flex-direction:column;align-items:center;gap:.05rem;padding:.55rem 1.25rem;border-radius:12px;background:rgba(10,16,34,.6);border:1px solid var(--border);backdrop-filter:blur(6px)}
+.hstat b{font-size:1.05rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hstat span{font-size:.72rem;color:var(--text3)}
+.scroll-hint{position:absolute;bottom:1.6rem;left:50%;transform:translateX(-50%);z-index:2;color:var(--text3);font-size:.75rem;letter-spacing:.18em;display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.scroll-hint::after{content:'';width:1px;height:34px;background:linear-gradient(to bottom,var(--accent2),transparent);animation:drop 1.8s ease-in-out infinite}
+@keyframes drop{0%{transform:scaleY(0);transform-origin:top}55%{transform:scaleY(1);transform-origin:top}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* ============ Section 通用 ============ */
+.section{padding:5.5rem 2rem;position:relative;z-index:1}
+.container{max-width:1160px;margin:0 auto}
+.section-label{display:inline-flex;align-items:center;gap:.5rem;font-size:.74rem;font-weight:800;text-transform:uppercase;letter-spacing:.22em;color:var(--accent);margin-bottom:.9rem}
+.section-label::before{content:'';width:22px;height:2px;background:var(--grad);border-radius:2px}
+.section-title{font-size:clamp(1.5rem,3vw,2.3rem);font-weight:900;margin-bottom:.9rem;line-height:1.3}
+.section-sub{color:var(--text2);font-size:1.03rem;max-width:780px;line-height:1.9}
+.section-sub strong{color:var(--text)}
+.text-center{text-align:center}
+.text-center .section-sub{margin-left:auto;margin-right:auto}
+.mt2{margin-top:2rem}.mt3{margin-top:3rem}
+
+/* Reveal */
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .8s cubic-bezier(.2,.6,.2,1),transform .8s cubic-bezier(.2,.6,.2,1)}
+.reveal.visible{opacity:1;transform:none}
+.reveal-d1{transition-delay:.08s}.reveal-d2{transition-delay:.16s}.reveal-d3{transition-delay:.24s}.reveal-d4{transition-delay:.32s}
+
+/* ============ 痛点 ============ */
+.problem-band{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;margin-top:2.8rem}
+.pcard{position:relative;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2.1rem 1.7rem 1.8rem;transition:transform .3s,border-color .3s,box-shadow .3s;overflow:hidden}
+.pcard:hover{transform:translateY(-6px);border-color:var(--border2);box-shadow:var(--glow)}
+.pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad);opacity:.85}
+.pcard .pnum{position:absolute;top:1.15rem;right:1.4rem;font-size:2.4rem;font-weight:900;color:rgba(56,189,248,.14);line-height:1}
+.pcard h3{font-size:1.08rem;font-weight:800;margin-bottom:.6rem;display:flex;align-items:center;gap:.5rem}
+.pcard h3 .ico{font-size:1.25rem}
+.pcard p{color:var(--text2);font-size:.9rem;line-height:1.85}
+.pcard .tag{display:inline-block;margin-top:.9rem;padding:.22rem .7rem;border-radius:50px;font-size:.72rem;font-weight:700;border:1px solid var(--border2);color:var(--accent2);background:rgba(34,211,238,.07)}
+.pcard .tag.warn{color:var(--gold);border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.07)}
+
+/* ============ 方案总览 ============ */
+.mainline{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-top:2.6rem}
+.mline{position:relative;background:linear-gradient(160deg,rgba(14,22,44,.75),rgba(8,13,26,.85));border:1px solid var(--border);border-radius:var(--radius);padding:2.2rem;transition:transform .3s,border-color .3s}
+.mline:hover{transform:translateY(-5px);border-color:var(--border2)}
+.mline::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0}
+.mline.line-a::before{background:linear-gradient(90deg,#38bdf8,#22d3ee)}
+.mline.line-b::before{background:linear-gradient(90deg,#fbbf24,#fb923c)}
+.mline .mline-badge{font-size:.7rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:.7rem;display:block}
+.mline.line-b .mline-badge{color:var(--gold)}
+.mline h3{font-size:1.25rem;font-weight:900;margin-bottom:.7rem}
+.mline p{color:var(--text2);font-size:.92rem;line-height:1.9}
+.mline .mline-points{margin-top:1.1rem;display:flex;flex-direction:column;gap:.45rem}
+.mline .mp{font-size:.85rem;color:var(--text2);display:flex;gap:.5rem;align-items:flex-start}
+.mline .mp::before{content:'▹';color:var(--accent2);font-weight:700}
+.mline.line-b .mp::before{color:var(--gold)}
+.link-note{display:flex;align-items:center;justify-content:center;gap:.7rem;margin-top:1.6rem;font-size:.9rem;color:var(--text2)}
+.link-note .ln-arrow{color:var(--accent2);font-weight:900}
+
+/* 三层架构流动图 */
+.layer-flow{display:flex;align-items:stretch;justify-content:center;gap:0;margin-top:2.6rem;position:relative}
+.layer{flex:1;max-width:300px;padding:1.5rem 1.2rem;border-radius:14px;text-align:center;background:var(--card);border:1px solid var(--border);position:relative;transition:transform .3s,border-color .3s}
+.layer:hover{border-color:var(--border2);transform:translateY(-4px)}
+.layer .l-ico{font-size:1.7rem;margin-bottom:.5rem}
+.layer .l-name{font-weight:800;font-size:1rem;margin-bottom:.25rem}
+.layer .l-desc{font-size:.78rem;color:var(--text2);line-height:1.6}
+.layer.l1{border-color:rgba(167,139,250,.3)}
+.layer.l2{border-color:rgba(56,189,248,.3)}
+.layer.l3{border-color:rgba(251,191,36,.3)}
+.layer-arrow{align-self:center;display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:0 .4rem;color:var(--accent2);font-size:.78rem;font-weight:700;letter-spacing:.06em;min-width:110px}
+.arrow-line{width:1px;height:44px;background:linear-gradient(to bottom,transparent,var(--accent2),transparent);position:relative;overflow:hidden}
+.arrow-line::after{content:'';position:absolute;top:-44px;left:0;width:100%;height:44px;background:linear-gradient(to bottom,transparent,#22d3ee);animation:arrowflow 1.6s linear infinite}
+@keyframes arrowflow{to{top:44px}}
+
+/* ============ HiDAPS ============ */
+.constraint-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;margin-top:2.2rem}
+.cgrid{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1.3rem 1.3rem 1.1rem;transition:transform .25s,border-color .25s}
+.cgrid:hover{transform:translateY(-4px);border-color:var(--border2)}
+.cgrid .c-ico{font-size:1.35rem}
+.cgrid h4{font-size:.95rem;font-weight:800;margin:.4rem 0 .3rem;display:flex;justify-content:space-between;align-items:center}
+.cgrid h4 .cn{color:var(--text3);font-size:.75rem;font-weight:600}
+.cgrid p{color:var(--text2);font-size:.8rem;line-height:1.7}
+
+/* 归因链可视化 */
+.attribution{display:grid;grid-template-columns:minmax(220px,1fr) 2.2fr;gap:1.6rem;margin-top:2.4rem;align-items:stretch}
+.attr-src{background:linear-gradient(160deg,rgba(56,189,248,.12),rgba(10,16,34,.7));border:1px solid var(--border2);border-radius:var(--radius);padding:1.8rem;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;position:relative}
+.attr-src .pulse-ring{position:absolute;inset:0;border-radius:var(--radius);border:1px solid rgba(34,211,238,.4);animation:ring 2.6s ease-out infinite;pointer-events:none}
+@keyframes ring{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.06);opacity:0}}
+.attr-src .big{font-size:2rem;font-weight:900;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.attr-src .sub{font-size:.8rem;color:var(--text3);margin-top:.3rem}
+.attr-list{display:flex;flex-direction:column;gap:.9rem;justify-content:center}
+.attr-item{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem 1.2rem;transition:border-color .3s}
+.attr-item:hover{border-color:var(--border2)}
+.attr-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
+.attr-head .an{font-weight:800;font-size:.92rem;display:flex;align-items:center;gap:.45rem}
+.attr-head .an .k{font-family:var(--font-mono);font-size:.72rem;padding:.1rem .45rem;border-radius:5px;background:rgba(56,189,248,.14);color:var(--accent2)}
+.attr-head .ap{font-family:var(--font-mono);font-weight:800;font-size:1.02rem;color:var(--gold)}
+.attr-bar{height:8px;border-radius:5px;background:rgba(255,255,255,.06);overflow:hidden}
+.attr-bar i{display:block;height:100%;width:0;border-radius:5px;background:var(--grad);transition:width 1.4s cubic-bezier(.2,.7,.2,1)}
+.attr-item:nth-child(2) .attr-bar i{background:linear-gradient(90deg,#fbbf24,#fb923c)}
+.attr-item:nth-child(3) .attr-bar i{background:linear-gradient(90deg,#a78bfa,#38bdf8)}
+.attr-sug{margin-top:.5rem;font-size:.76rem;color:var(--text3);display:flex;align-items:center;gap:.4rem}
+.attr-sug::before{content:'⤷ 松弛建议';color:var(--accent2);font-weight:700;flex-shrink:0}
+.attr-vs{display:grid;grid-template-columns:1fr auto 1fr;gap:1.1rem;margin-top:2rem;align-items:stretch}
+.vs-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1.2rem 1.3rem}
+.vs-box h5{font-size:.78rem;font-weight:800;letter-spacing:.08em;color:var(--red);margin-bottom:.4rem}
+.vs-box.good h5{color:var(--green)}
+.vs-box p{font-size:.85rem;color:var(--text2);line-height:1.8}
+.vs-vs{align-self:center;font-size:1.2rem;font-weight:900;color:var(--gold);text-align:center}
+
+/* 松弛引擎 */
+.relax-table{width:100%;border-collapse:collapse;margin-top:1.2rem;font-size:.88rem}
+.relax-table th,.relax-table td{padding:.72rem .9rem;text-align:left;border-bottom:1px solid rgba(255,255,255,.06)}
+.relax-table th{color:var(--accent);font-weight:700;font-size:.74rem;text-transform:uppercase;letter-spacing:.08em;background:rgba(56,189,248,.05)}
+.relax-table td{color:var(--text2)}
+.relax-table tr:hover td{background:rgba(56,189,248,.03)}
+.cost-cell{display:flex;align-items:center;gap:.6rem}
+.cost-cell .cb{width:120px;height:6px;border-radius:4px;background:rgba(255,255,255,.06);overflow:hidden;flex-shrink:0}
+.cost-cell .cb i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#34d399,#fbbf24,#fb923c,#f87171);width:0;transition:width 1.2s ease}
+.cost-cell .cv{font-family:var(--font-mono);font-weight:700;color:var(--gold);min-width:42px}
+
+/* ============ Agent ============ */
+/* 7 节点状态图 */
+.stategraph-wrap{background:linear-gradient(160deg,rgba(8,13,26,.85),rgba(10,16,34,.6));border:1px solid var(--border);border-radius:var(--radius);padding:1.6rem;margin-top:2.2rem;overflow-x:auto}
+.stategraph{width:100%;min-width:900px;height:auto;display:block}
+.sg-node rect{fill:rgba(14,22,44,.9);stroke:var(--border2);stroke-width:1.4;rx:10;transition:filter .3s}
+.sg-node:hover rect{filter:drop-shadow(0 0 14px rgba(34,211,238,.45))}
+.sg-node .nt{fill:#e6f1ff;font-size:12.5px;font-weight:700;text-anchor:middle}
+.sg-node .nd{fill:var(--text3);font-size:9.5px;text-anchor:middle;letter-spacing:.06em}
+.sg-node.core rect{fill:rgba(251,191,36,.10);stroke:rgba(251,191,36,.55);stroke-width:1.8}
+.sg-node.core .nt{fill:var(--gold)}
+.sg-edge{fill:none;stroke:rgba(56,189,248,.5);stroke-width:1.8;stroke-linecap:round}
+.sg-edge.loop{stroke:rgba(251,191,36,.6);stroke-dasharray:5 5}
+.sg-edge.anim{stroke-dasharray:9 7;animation:dashflow 1.1s linear infinite}
+@keyframes dashflow{to{stroke-dashoffset:-16}}
+.sg-elabel{fill:var(--text3);font-size:9.5px;text-anchor:middle;letter-spacing:.05em}
+.sg-elabel.hot{fill:var(--gold);font-weight:700}
+.sg-arrow{fill:rgba(56,189,248,.85)}
+.sg-arrow.gold{fill:var(--gold)}
+
+/* L0-L3 阶梯 */
+.ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:1.1rem;margin-top:2.3rem;align-items:end}
+.lstep{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm) var(--radius-sm) 0 0;padding:1.3rem 1.1rem;position:relative;transition:transform .3s,border-color .3s;border-bottom:3px solid}
+.lstep:hover{transform:translateY(-5px)}
+.lstep .lv{font-family:var(--font-mono);font-size:.72rem;font-weight:800;color:var(--text3);letter-spacing:.1em}
+.lstep h4{font-size:1rem;font-weight:800;margin:.2rem 0 .45rem}
+.lstep p{font-size:.8rem;color:var(--text2);line-height:1.7}
+.lstep .toolchain{margin-top:.7rem;font-family:var(--font-mono);font-size:.7rem;color:var(--accent2);background:rgba(34,211,238,.06);padding:.35rem .6rem;border-radius:6px;word-break:break-all}
+.lstep.s0{border-color:rgba(56,189,248,.35);height:150px}
+.lstep.s1{border-color:rgba(56,189,248,.55);height:178px}
+.lstep.s2{border-color:rgba(251,191,36,.55);height:206px}
+.lstep.s3{border-color:rgba(251,146,60,.6);height:234px;background:linear-gradient(160deg,rgba(251,191,36,.09),rgba(14,22,44,.6))}
+.lstep.s3 h4{color:var(--gold)}
+
+/* 洋葱模型中间件 */
+.onion{position:relative;width:520px;height:520px;margin:2.4rem auto 0;max-width:100%}
+.onion-ring{position:absolute;border-radius:50%;display:grid;place-items:center}
+.onion-ring::before{content:'';position:absolute;inset:0;border-radius:50%;border:1.5px dashed;animation:spin linear infinite}
+.or1{inset:0}
+.or1::before{border-color:rgba(56,189,248,.5);animation-duration:70s}
+.or2{inset:74px}
+.or2::before{border-color:rgba(167,139,250,.5);animation-duration:55s;animation-direction:reverse}
+.or3{inset:148px}
+.or3::before{border-color:rgba(251,191,36,.55);animation-duration:40s}
+.or3 .core{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;text-align:center;background:radial-gradient(circle,rgba(251,191,36,.14),rgba(10,16,34,.4));border:1px solid rgba(251,191,36,.4)}
+.or3 .core b{font-size:.95rem;color:var(--gold)}
+.or3 .core span{display:block;font-size:.68rem;color:var(--text3);margin-top:.2rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.onion-chip{position:absolute;transform:translate(-50%,-50%);background:rgba(8,13,26,.92);border:1px solid var(--border2);border-radius:8px;padding:.3rem .62rem;font-size:.7rem;color:var(--text2);white-space:nowrap;transition:color .2s,border-color .2s;z-index:2}
+.onion-chip b{color:var(--accent2);font-weight:700}
+.onion-chip:hover{color:var(--text);border-color:var(--accent)}
+.onion-legend{display:flex;justify-content:center;gap:1.6rem;margin-top:1.4rem;font-size:.78rem;color:var(--text3)}
+.onion-legend span{display:flex;align-items:center;gap:.4rem}
+.onion-legend i{width:22px;height:0;border-top:2px dashed}
+
+/* 工具设计原则 */
+.tool-vs{display:grid;grid-template-columns:1fr auto 1fr;gap:1.2rem;margin-top:2.2rem;align-items:stretch}
+.code-block{background:rgba(4,8,18,.85);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1.15rem 1.3rem;font-family:var(--font-mono);font-size:.8rem;line-height:1.75;color:var(--text2);overflow-x:auto;position:relative}
+.code-block .cap{position:absolute;top:.7rem;right:.9rem;font-size:.62rem;letter-spacing:.14em;padding:.15rem .55rem;border-radius:4px;background:rgba(56,189,248,.12);color:var(--accent2);font-weight:700}
+.code-block.bad .cap{background:rgba(248,113,113,.12);color:var(--red)}
+.code-block.good .cap{background:rgba(52,211,153,.12);color:var(--green)}
+.code-block .dim{color:var(--text3)}
+.code-block .key{color:var(--accent2)}
+.code-block .val{color:var(--gold)}
+.code-block .badline{color:var(--red)}
+.code-block .goodline{color:var(--green)}
+
+/* ============ 闭环 ============ */
+.loop-track{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:2.6rem;position:relative}
+.loop-step{padding:1.6rem 1.1rem;text-align:center;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);position:relative}
+.loop-step .ls-ico{width:52px;height:52px;margin:0 auto .8rem;border-radius:50%;display:grid;place-items:center;font-size:1.4rem;background:rgba(56,189,248,.1);border:1px solid var(--border2)}
+.loop-step h4{font-weight:800;margin-bottom:.4rem}
+.loop-step p{font-size:.8rem;color:var(--text2);line-height:1.75}
+.loop-arrow{position:absolute;top:50%;right:-11px;transform:translateY(-50%);z-index:3;width:22px;height:22px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);display:grid;place-items:center;color:var(--accent2);font-size:.85rem;font-weight:900}
+.loop-feedback{margin-top:1.5rem;text-align:center;font-size:.86rem;color:var(--text3)}
+.loop-feedback b{color:var(--gold)}
+.loop-feedback .fb-line{display:inline-block;width:200px;height:1px;vertical-align:middle;margin:0 .8rem;position:relative;background:linear-gradient(90deg,transparent,rgba(251,191,36,.6),transparent);overflow:visible}
+.loop-feedback .fb-line::after{content:'◀';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:var(--gold);animation:fbpulse 2s ease-in-out infinite}
+@keyframes fbpulse{0%,100%{opacity:.3}50%{opacity:1}}
+
+/* ============ 实验数据 ============ */
+.evidence-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem;margin-top:2.6rem}
+.ev-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.8rem 1.4rem;text-align:center;transition:transform .3s,border-color .3s}
+.ev-card:hover{transform:translateY(-5px);border-color:var(--border2)}
+.ev-num{font-size:2.5rem;font-weight:900;line-height:1.1;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.ev-card.gold .ev-num{background:var(--grad-gold);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.ev-card.violet .ev-num{background:var(--grad-violet);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.ev-label{color:var(--text2);font-size:.82rem;margin-top:.5rem}
+.ev-sub{color:var(--text3);font-size:.72rem;margin-top:.3rem;font-family:var(--font-mono)}
+.bar-compare{margin-top:2.4rem;display:flex;flex-direction:column;gap:1.2rem}
+.bc-row{display:grid;grid-template-columns:150px 1fr 64px;align-items:center;gap:1rem;font-size:.85rem}
+.bc-row .bc-name{color:var(--text2);font-weight:600;text-align:right}
+.bc-row .bc-track{height:22px;border-radius:6px;background:rgba(255,255,255,.05);overflow:hidden;position:relative}
+.bc-row .bc-fill{height:100%;border-radius:6px;width:0;transition:width 1.4s cubic-bezier(.2,.7,.2,1);display:flex;align-items:center;justify-content:flex-end;padding-right:.5rem;font-size:.7rem;font-weight:800;color:#04121f;font-family:var(--font-mono)}
+.bc-row .bc-val{font-family:var(--font-mono);font-weight:800;color:var(--text)}
+.bc-row .bc-track .bc-fill.bad{background:linear-gradient(90deg,#64748b,#94a3b8);color:#0b1220}
+.bc-row .bc-track .bc-fill.good{background:var(--grad)}
+.ev-note{display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:1.6rem;font-size:.78rem;color:var(--text3)}
+.ev-note .info-dot{width:6px;height:6px;border-radius:50%;background:var(--accent2)}
+
+/* ============ 对比表 ============ */
+.compare-table{width:100%;border-collapse:collapse;margin-top:2.2rem;font-size:.9rem;background:var(--card2);border-radius:var(--radius);overflow:hidden}
+.compare-table th,.compare-table td{padding:.95rem 1.05rem;text-align:left;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:top}
+.compare-table th{color:var(--accent);font-weight:700;font-size:.76rem;text-transform:uppercase;letter-spacing:.08em;background:rgba(56,189,248,.07)}
+.compare-table td{color:var(--text2)}
+.compare-table tr:hover td{background:rgba(56,189,248,.03)}
+.compare-table .win{color:var(--green);font-weight:700}
+.compare-table .hl{background:rgba(251,191,36,.06)}
+
+/* ============ Footer ============ */
+.footer{position:relative;z-index:1;text-align:center;padding:3.2rem 2rem 2.6rem;border-top:1px solid var(--border);color:var(--text3);font-size:.82rem;background:rgba(4,6,13,.7)}
+.footer .f-brand{font-size:1.05rem;font-weight:800;color:var(--text);margin-bottom:.4rem}
+.footer .f-brand b{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.footer a{color:var(--accent)}
+.footer .f-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem;margin:1rem 0 1.2rem}
+.footer .f-tags span{font-size:.7rem;padding:.2rem .7rem;border-radius:50px;border:1px solid var(--border);color:var(--text3)}
+
+/* ============ 响应式 ============ */
+@media(max-width:1024px){
+  .problem-band,.mainline{grid-template-columns:1fr}
+  .constraint-grid{grid-template-columns:repeat(2,1fr)}
+  .ladder{grid-template-columns:repeat(2,1fr)}
+  .lstep{height:auto!important;border-radius:var(--radius-sm);border-bottom-width:3px}
+  .evidence-grid{grid-template-columns:repeat(2,1fr)}
+  .loop-track{grid-template-columns:repeat(2,1fr);gap:1rem}
+  .loop-arrow{display:none}
+  .attribution{grid-template-columns:1fr}
+  .attr-vs,.tool-vs{grid-template-columns:1fr}
+  .vs-vs{transform:rotate(90deg);padding:.4rem 0}
+}
+@media(max-width:768px){
+  .nav-links{display:none;position:absolute;top:64px;left:0;right:0;background:rgba(4,6,13,.97);flex-direction:column;padding:1.2rem 2rem;gap:.4rem;border-bottom:1px solid var(--border)}
+  .nav-links.open{display:flex}
+  .nav-toggle{display:block}
+  .layer-flow{flex-direction:column;align-items:center;gap:.4rem}
+  .layer-arrow{flex-direction:row;min-width:auto;padding:.2rem 0}
+  .arrow-line{width:44px;height:1px;background:linear-gradient(90deg,transparent,var(--accent2),transparent)}
+  .arrow-line::after{top:0;left:-44px;width:44px;height:100%;background:linear-gradient(90deg,transparent,#22d3ee);animation:arrowflowH 1.6s linear infinite}
+  @keyframes arrowflowH{to{left:44px}}
+  .constraint-grid{grid-template-columns:1fr}
+  .onion{width:340px;height:340px}
+  .or2{inset:48px}.or3{inset:96px}
+  .onion-chip{font-size:.62rem;padding:.22rem .45rem}
+  .section{padding:4rem 1.2rem;opacity:1;transform:none}
+  .bc-row{grid-template-columns:96px 1fr 54px;gap:.6rem}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s!important;transition-duration:.001s!important}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
+
+<canvas id="bg3d" aria-hidden="true"></canvas>
+
+<!-- ===== 导航 ===== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <div class="nav-brand"><span class="logo">H</span><b>HiDAPS-APS Agent</b><span></span></div>
+    <button class="nav-toggle" id="navToggle" aria-label="菜单">☰</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#problem">痛点</a></li>
+      <li><a href="#solution">方案</a></li>
+      <li><a href="#hidaps">HiDAPS 引擎</a></li>
+      <li><a href="#agent">Agent 系统</a></li>
+      <li><a href="#loop">决策闭环</a></li>
+      <li><a href="#evidence">实验验证</a></li>
+      <li><a href="#compare">差异化</a></li>
+    </ul>
+    <a class="nav-cta" href="https://github.com/NBZFK/APS Agent" target="_blank" rel="noopener">GitHub ↗</a>
+  </div>
+</nav>
+
+<!-- ===== Hero ===== -->
+<section class="hero" id="top">
+  <div class="hero-content">
+    <!-- <div class="hero-badge"><span class="dot"></span>硕士毕业论文 · 面向航空制造的交互式生产调度智能体研究 · 中国航空工业集团联合培养</div> -->
+    <h1>排产不是黑箱优化，<br>而是<span class="g1">可归因的推理</span> ——<br>让「为什么被阻塞」<span class="g2">可计算</span></h1>
+    <p class="hero-sub">
+      航空制造排产面临「高复杂度 · 强动态 · 重协同」三重要求。本课题不做「又一个求解器」，而是先建立一套统一的<strong>排产语义表征层</strong>（HiDAPS），使「分析约束的影响」从不可能变为可能；再在此之上构建能进行<strong>归因推理的智能体</strong>（APS Agent），使优化决策从经验驱动变为归因驱动。
+    </p>
+    <div class="hero-actions">
+      <a href="#solution" class="btn btn-primary">了解解决方案 →</a>
+      <a href="#agent" class="btn btn-outline">Agent 编排系统</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><b>35+</b><span>约束类型</span></div>
+      <div class="hstat"><b>6 大类</b><span>约束体系</span></div>
+      <div class="hstat"><b>7 节点</b><span>LangGraph 编排</span></div>
+      <div class="hstat"><b>15 个</b><span>中间件洋葱链</span></div>
+      <div class="hstat"><b>34 项</b><span>排产专用工具</span></div>
+      <div class="hstat"><b>191 项</b><span>单元测试 · 零失败</span></div>
+    </div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- ===== 痛点 ===== -->
+<section class="section" id="problem">
+  <div class="container">
+    <span class="section-label">The Problem · 三个结构性痛点</span>
+    <h2 class="section-title">航空制造一线调度员的真实困境，层层递进</h2>
+    <p class="section-sub">基于多家航空主机厂与机载厂加工装配车间的实地调研，本课题识别出三个逐层递进的结构性痛点 —— 它们共同指向一个根因：<strong>排产领域缺少一套统一、可分析、可积累的语义基础设施</strong>。</p>
+
+    <div class="problem-band">
+      <div class="pcard reveal">
+        <span class="pnum">01</span>
+        <h3><span class="ico">🚨</span>动态响应滞后 → 救火式调度</h3>
+        <p>设备故障、物料延迟、任务插入等扰动发生时，现有 APS 需人工调整参数后触发全局重调度，计算耗时长。一线调度员被迫依赖个人经验即时判断，<strong>缺乏系统性的分析与推演支撑</strong>。</p>
+        <span class="tag">动态扰动 · 人工介入 · 全局重排</span>
+      </div>
+      <div class="pcard reveal reveal-d1">
+        <span class="pnum">02</span>
+        <h3><span class="ico">🔧</span>局部微调没有工具支撑</h3>
+        <p>真实生产中最高频的需求不是全局重排，而是局部微调——「某订单拖期，设备加班 2 小时能否解决？」。但不同工厂 APS 数据结构不同、约束建模不同、求解器格式不同，<strong>分析工作无法标准化，每次都需重写代码</strong>。</p>
+        <span class="tag warn">缺少统一排产表达语言</span>
+      </div>
+      <div class="pcard reveal reveal-d2">
+        <span class="pnum">03</span>
+        <h3><span class="ico">🧠</span>排产经验无法结构化积累</h3>
+        <p>老计划员的经验本质是一系列条件判断——「该机型此工位不宜排太紧」「A 类订单保交付、B 类可放宽换型」。缺少结构化表达与记录机制，<strong>经验随人员流动流失</strong>，新人只能从头积累。</p>
+        <span class="tag">经验流失 · 无法复用</span>
+      </div>
+    </div>
+
+    <div class="code-block mt3 reveal" style="max-width:860px;margin-left:auto;margin-right:auto">
+      <span class="cap">ROOT CAUSE</span>
+      <span class="dim">// 表面是三个痛点，根因是同一个缺口：</span><br>
+      求解器回答「<span class="val">怎么排更好</span>」，却回答不了<br>
+      「<span class="key">什么在阻止更好的结果？</span>」「<span class="key">放松某个约束会产生多大影响？</span>」<br>
+      <span class="dim">// —— 因为约束被编译成不等式后就丢失了全部业务语义</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 解决方案总览 ===== -->
+<section class="section" id="solution" style="background:var(--bg2)">
+  <div class="container">
+    <span class="section-label">The Solution · 两条主线</span>
+    <h2 class="section-title">同一逻辑链的上下半场：语义表征 → 归因决策</h2>
+    <p class="section-sub">本课题的核心命题不是「做一个更好的求解器」或「做一个对话排产助手」，而是：<strong>先建立统一排产语义表征层，使「分析约束的影响」成为可能；再在其上构建基于归因链推理的智能体，使「基于分析的优化决策」从经验驱动变为归因驱动</strong>。</p>
+
+    <div class="mainline">
+      <div class="mline line-a reveal">
+        <span class="mline-badge">主线一 · 语义基础</span>
+        <h3>HiDAPS — 统一语义表征与标准化分析框架</h3>
+        <p>排产领域长期缺少独立于数据源、独立于求解算法的统一表达语言。HiDAPS 建立以「约束语义化」本体层为底座的语义中间层：向下适配异构 APS 数据，向上提供标准化约束分析工具，横向使不同求解器的结果在同一坐标系下可比较。</p>
+        <div class="mline-points">
+          <div class="mp">约束语义化：35+ 约束类型、6 大类，带类型/严重度/可松弛性声明的一等公民</div>
+          <div class="mp">归因诊断器：输出结构化归因链——阻塞约束、贡献比例、松弛建议</div>
+          <div class="mp">统一实体映射：异构数据 → 统一概念表达，换工厂只改 YAML 配置</div>
+          <div class="mp">可插拔求解层：启发式 / 遗传 / DRL 接口统一注册，公平对比</div>
+        </div>
+      </div>
+      <div class="mline line-b reveal reveal-d1">
+        <span class="mline-badge">主线二 · 决策延伸</span>
+        <h3>APS Agent — 基于归因分析的自主优化闭环</h3>
+        <p>在统一语义表征之上构建排产专用 Agent。Agent 不再机械地调用工具执行指令，而是基于 HiDAPS 暴露的约束归因关系进行推理：拿到归因链后判断主要矛盾、匹配松弛策略、在假设推演中安全验证、输出带证据链的推荐。</p>
+        <div class="mline-points">
+          <div class="mp">7 节点 LangGraph 状态图：上下文 → 意图 → 计划 → 决策 → 执行 → 确认 → 综合</div>
+          <div class="mp">L0–L3 分级智能：按任务复杂度分配推理资源</div>
+          <div class="mp">15 个中间件洋葱链：安全是代码强制，而非恳求 LLM</div>
+          <div class="mp">假设推演：约束松弛的「试验场」，结果不污染主方案</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="link-note reveal">
+      <span style="color:var(--text2)">HiDAPS 是 Agent 的语义基础 —— 没有统一表达，Agent 面对的是裸 JSON，策略选择退化为规则匹配</span>
+      <span class="ln-arrow">⟷</span>
+      <span style="color:var(--text2)">Agent 是 HiDAPS 的决策延伸 —— 没有 Agent，约束分析只是报告，无法转化为优化行动</span>
+    </div>
+
+    <div class="layer-flow mt3">
+      <div class="layer l1 reveal"><div class="l-ico">🧱</div><div class="l-name">信息层</div><div class="l-desc">HiDAPS<br>约束本体 · 仿真引擎<br>归因诊断器</div></div>
+      <div class="layer-arrow reveal reveal-d1"><span class="arrow-line"></span><span>语义</span></div>
+      <div class="layer l2 reveal reveal-d1"><div class="l-ico">⚙️</div><div class="l-name">计算层</div><div class="l-desc">诊断 · 仿真 · 策略<br>统一分析工具链</div></div>
+      <div class="layer-arrow reveal reveal-d2"><span class="arrow-line"></span><span>归因</span></div>
+      <div class="layer l3 reveal reveal-d2"><div class="l-ico">🤖</div><div class="l-name">推理层</div><div class="l-desc">Agent · L0–L3<br>基于归因的决策推理</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HiDAPS ===== -->
+<section class="section" id="hidaps">
+  <div class="container">
+    <span class="section-label">HiDAPS Engine · 语义中间层</span>
+    <h2 class="section-title">约束携带语义、可自我松弛、可因果追溯</h2>
+    <p class="section-sub">传统求解器将约束编译为数学不等式后丢失全部业务语义。HiDAPS 反过来——每条约束独立声明「约束谁、限制什么、严重程度、是否可放松、放松代价多大」，使 <strong>「分析 → 松弛 → 验证」成为可标准化的分析管道</strong>。</p>
+
+    <!-- 约束体系 -->
+    <div class="constraint-grid mt2">
+      <div class="cgrid reveal"><div class="c-ico">🏗️</div><h4>结构约束 <span class="cn">STRUCTURAL</span></h4><p>父子层级、组成关系、物料清单结构</p></div>
+      <div class="cgrid reveal reveal-d1"><div class="c-ico">⏱️</div><h4>时序约束 <span class="cn">TEMPORAL</span></h4><p>前后序、交期、换型时间、最小间隔</p></div>
+      <div class="cgrid reveal reveal-d2"><div class="c-ico">🛠️</div><h4>能力约束 <span class="cn">CAPABILITY</span></h4><p>技能等级、设备型号、工装夹具匹配</p></div>
+      <div class="cgrid reveal reveal-d1"><div class="c-ico">📦</div><h4>容量约束 <span class="cn">CAPACITY</span></h4><p>资源互斥、日负荷上限、并行度限制</p></div>
+      <div class="cgrid reveal reveal-d2"><div class="c-ico">🔁</div><h4>状态约束 <span class="cn">STATE</span></h4><p>周期检修触发、质检门、状态转移</p></div>
+      <div class="cgrid reveal reveal-d3"><div class="c-ico">🎯</div><h4>偏好约束 <span class="cn">PREFERENCE</span></h4><p>优先设备指定、负载均衡等软性倾向</p></div>
+    </div>
+
+    <!-- 归因链 -->
+    <div class="attribution">
+      <div class="attr-src reveal">
+        <div class="pulse-ring"></div>
+        <div class="big">OP-42</div>
+        <div class="sub">被阻塞工序 · 归因单元</div>
+        <div style="margin-top:.9rem;font-size:.74rem;color:var(--text3)">归因链 = ⟨约束类型, 贡献率, 松弛建议⟩</div>
+      </div>
+      <div class="attr-list">
+        <div class="attr-item reveal">
+          <div class="attr-head"><span class="an"><span class="k">SKILL</span>技能约束</span><span class="ap" data-count="60" data-suffix="%">0%</span></div>
+          <div class="attr-bar"><i data-w="60%"></i></div>
+          <div class="attr-sug">放宽技能等级 / 增调合格人员</div>
+        </div>
+        <div class="attr-item reveal reveal-d1">
+          <div class="attr-head"><span class="an"><span class="k">SETUP</span>换型约束</span><span class="ap" data-count="30" data-suffix="%">0%</span></div>
+          <div class="attr-bar"><i data-w="30%"></i></div>
+          <div class="attr-sug">合并同类工序 / 减少换型频次</div>
+        </div>
+        <div class="attr-item reveal reveal-d2">
+          <div class="attr-head"><span class="an"><span class="k">PRECEDENCE</span>前序延迟</span><span class="ap" data-count="10" data-suffix="%">0%</span></div>
+          <div class="attr-bar"><i data-w="10%"></i></div>
+          <div class="attr-sug">加速前序工序 / 优先级调整</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="attr-vs">
+      <div class="vs-box reveal">
+        <h5>✗ 传统诊断 · 结果摘要</h5>
+        <p>「拖期率 15%，瓶颈设备 M3，利用率 85%」—— Agent 拿到后只能复述瓶颈编号，<strong>无从判断成因</strong>，策略选择退化为数值阈值匹配。</p>
+      </div>
+      <div class="vs-vs reveal reveal-d1">VS</div>
+      <div class="vs-box good reveal reveal-d1">
+        <h5>✓ 归因链 · 语义关系接口</h5>
+        <p>「瓶颈 M3 被 <strong>技能约束阻塞 60%</strong>、换型约束 30%、前序延迟 10%；松弛技能约束预估拖期率降至 8%」—— Agent 直接判断主导矛盾并选择对症策略，<strong>从「自行理解机理」降级为「基于已计算的语义关系完成决策」</strong>。</p>
+      </div>
+    </div>
+
+    <!-- 松弛引擎 -->
+    <div class="pillar-wrap mt3 reveal" style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem">
+      <h3 style="font-size:1.15rem;font-weight:800;margin-bottom:.3rem">约束松弛引擎：冲突时的结构化缓冲</h3>
+      <p style="color:var(--text2);font-size:.88rem;margin-bottom:1.2rem">工业排产的约束必然互相矛盾。HiDAPS 的松弛引擎按代价排序试探——约束自己声明「可被放松到什么程度、代价多大」，引擎<strong style="color:var(--text)">修改检查上下文而非约束本身</strong>，全程可审计。</p>
+      <table class="relax-table">
+        <tr><th>松弛方法</th><th>代价</th><th>效果</th><th>适用场景</th></tr>
+        <tr><td style="color:var(--text)">OVERTIME 加班</td><td class="cost-cell"><span class="cb"><i data-w="20%"></i></span><span class="cv">0.10</span></td><td>日工时 +4h</td><td>日产能不足</td></tr>
+        <tr><td style="color:var(--text)">DOWNGRADE_SKILL 降技能</td><td class="cost-cell"><span class="cb"><i data-w="30%"></i></span><span class="cv">0.15</span></td><td>技能要求 −1 级</td><td>高技能工短缺</td></tr>
+        <tr><td style="color:var(--text)">ADD_SHIFT 加开班次</td><td class="cost-cell"><span class="cb"><i data-w="40%"></i></span><span class="cv">0.20</span></td><td>日工时 → 24h</td><td>班制不足</td></tr>
+        <tr><td style="color:var(--text)">POSTPONE_MAINTENANCE</td><td class="cost-cell"><span class="cb"><i data-w="50%"></i></span><span class="cv">0.25</span></td><td>重置维护计数器</td><td>维护 vs 生产冲突</td></tr>
+        <tr><td style="color:var(--text)">DELAY 延期</td><td class="cost-cell"><span class="cb"><i data-w="60%"></i></span><span class="cv">0.30</span></td><td>交期 +24h</td><td>交期不可能满足</td></tr>
+        <tr><td style="color:var(--text)">BORROW_RESOURCE 借调</td><td class="cost-cell"><span class="cb"><i data-w="100%"></i></span><span class="cv">0.50</span></td><td>并行容量 +1</td><td>资源互斥死锁</td></tr>
+      </table>
+    </div>
+
+    <!-- 统一表征 -->
+    <div class="constraint-grid mt3">
+      <div class="cgrid reveal"><div class="c-ico">🔌</div><h4>可插拔求解器 <span class="cn">POLICY LAYER</span></h4><p>SchedulingAlgorithm ABC：启发式 / 遗传 / DRL 统一注册，同一约束与状态条件下公平对比</p></div>
+      <div class="cgrid reveal reveal-d1"><div class="c-ico">🗂️</div><h4>YAML 租户适配 <span class="cn">ADAPTER</span></h4><p>字段映射 + 参数定义 + 校验规则全部来自 YAML。换工厂改配置，不改代码</p></div>
+      <div class="cgrid reveal reveal-d2"><div class="c-ico">⚡</div><h4>事件驱动仿真 <span class="cn">SIMULATION</span></h4><p>13 步循环驱动：事件 → 候选 → 检查 → 选择 → 执行；深拷贝防多次运行变异</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Agent ===== -->
+<section class="section" id="agent" style="background:var(--bg2)">
+  <div class="container">
+    <span class="section-label">Agent System · 决策编排</span>
+    <h2 class="section-title">七节点状态图：控制流确定，推理流自由</h2>
+    <p class="section-sub">执行流程是<strong>确定的有向图</strong>，节点流转由显式路由规则决定，而非由 LLM 自行判断「下一步去向」——大模型仅在推理决策节点内负责「选择哪个工具」。排产流程的走向必须可预期、可审计。Agent ⇄ Executor 构成「推理—执行—再推理」迭代循环。</p>
+
+    <!-- 7 节点状态图 SVG -->
+    <div class="stategraph-wrap reveal">
+      <svg class="stategraph" viewBox="0 0 1080 330" role="img" aria-label="七节点 LangGraph 状态图">
+        <defs>
+          <linearGradient id="gNode" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#12304f"/><stop offset="1" stop-color="#0b1526"/>
+          </linearGradient>
+          <linearGradient id="gCore" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#3b2d0a"/><stop offset="1" stop-color="#141a08"/>
+          </linearGradient>
+          <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L8,4.5 L0,9 Z" fill="rgba(56,189,248,.85)"/>
+          </marker>
+          <marker id="arrGold" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L8,4.5 L0,9 Z" fill="#fbbf24"/>
+          </marker>
+        </defs>
+
+        <!-- 主链：CE → IR → Planner → Agent -->
+        <path class="sg-edge anim" d="M 168 86 L 232 86" marker-end="url(#arr)"/>
+        <path class="sg-edge anim" d="M 348 86 L 412 86" marker-end="url(#arr)"/>
+        <path class="sg-edge anim" d="M 528 86 L 592 86" marker-end="url(#arr)"/>
+
+        <!-- Agent ⇄ Executor -->
+        <path class="sg-edge anim" d="M 660 118 L 660 152" marker-end="url(#arr)"/>
+        <path class="sg-edge loop" d="M 700 178 L 700 144" marker-end="url(#arrGold)"/>
+        <text class="sg-elabel" x="720" y="166">工具结果回注</text>
+        <text class="sg-elabel hot" x="644" y="140">执行</text>
+
+        <!-- 主链后半：Agent → Dispatcher → Synthesizer -->
+        <path class="sg-edge anim" d="M 700 86 L 764 86" marker-end="url(#arr)"/>
+        <path class="sg-edge anim" d="M 880 86 L 944 86" marker-end="url(#arr)"/>
+
+        <!-- 节点 -->
+        <g class="sg-node"><rect x="22" y="58" width="146" height="56" fill="url(#gNode)"/><text class="nt" x="95" y="84">ContextEngine</text><text class="nd" x="95" y="102">上下文引擎 · 知识/记忆/历史</text></g>
+        <g class="sg-node"><rect x="232" y="58" width="116" height="56" fill="url(#gNode)"/><text class="nt" x="290" y="84">Intent</text><text class="nd" x="290" y="102">意图识别 · L0–L3 分级</text></g>
+        <g class="sg-node"><rect x="412" y="58" width="116" height="56" fill="url(#gNode)"/><text class="nt" x="470" y="84">Planner</text><text class="nd" x="470" y="102">执行规划 · 分步计划</text></g>
+        <g class="sg-node core"><rect x="592" y="58" width="108" height="56" fill="url(#gCore)"/><text class="nt" x="646" y="84">Agent ★</text><text class="nd" x="646" y="102">推理决策 · 工具选择</text></g>
+        <g class="sg-node"><rect x="612" y="152" width="108" height="56" fill="url(#gNode)"/><text class="nt" x="666" y="178">Executor</text><text class="nd" x="666" y="196">工具执行 · 中间件链</text></g>
+        <g class="sg-node"><rect x="764" y="58" width="116" height="56" fill="url(#gNode)"/><text class="nt" x="822" y="84">Dispatcher</text><text class="nd" x="822" y="102">人在环路 · 确认中断</text></g>
+        <g class="sg-node"><rect x="944" y="58" width="116" height="56" fill="url(#gNode)"/><text class="nt" x="1002" y="84">Synthesizer</text><text class="nd" x="1002" y="102">综合分析 · 输出建议</text></g>
+
+        <!-- 横切支撑 -->
+        <text class="sg-elabel" x="540" y="262">横切支撑</text>
+        <text class="sg-elabel" x="540" y="278">上下文组装 · 记忆 · 检查点 · 版本 · token 计量</text>
+        <path class="sg-edge loop" d="M 620 224 C 420 250, 300 210, 262 122" marker-end="url(#arrGold)"/>
+        <text class="sg-elabel" x="408" y="252">逐轮持久化 / 恢复</text>
+
+        <!-- 图例 -->
+        <g>
+          <rect x="22" y="296" width="10" height="10" rx="2" fill="rgba(251,191,36,.7)"/>
+          <text class="sg-elabel" x="40" y="305">Agent ★ 核心推理节点</text>
+          <path class="sg-edge loop" d="M 220 300 h 40" style="stroke-width:1.4"/>
+          <text class="sg-elabel" x="268" y="305">回环 / 支撑调用</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- L0-L3 -->
+    <div class="ladder mt3">
+      <div class="lstep s0 reveal">
+        <div class="lv">L0 · 指令执行</div>
+        <h4>严格照做</h4>
+        <p>专业人员直接下达指令，Agent 严格按指令执行，不做分析</p>
+        <div class="toolchain">set_params → doSchedule</div>
+      </div>
+      <div class="lstep s1 reveal reveal-d1">
+        <div class="lv">L1 · 问答辅助</div>
+        <h4>查数回答</h4>
+        <p>查询排产数据回答事实问题，不做主动建议</p>
+        <div class="toolchain">post_diagnosis / explore</div>
+      </div>
+      <div class="lstep s2 reveal reveal-d2">
+        <div class="lv">L2 · 建议交互</div>
+        <h4>归因推理</h4>
+        <p>约束诊断 → 策略推荐 → What-if 验证 → 推荐 + 证据链</p>
+        <div class="toolchain">diagnosis → strategies → simulate</div>
+      </div>
+      <div class="lstep s3 reveal reveal-d3">
+        <div class="lv">L3 · 全自主</div>
+        <h4>自主闭环</h4>
+        <p>感知 → 分析 → 决策 → 执行 → 验证，面向非专业用户</p>
+        <div class="toolchain">Skill(auto_optimizer)</div>
+      </div>
+    </div>
+
+    <!-- 洋葱模型 -->
+    <div class="reveal mt3" style="text-align:center">
+      <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:.3rem">洋葱模型中间件链：安全是代码强制</h3>
+      <p style="color:var(--text2);font-size:.88rem;max-width:720px;margin:0 auto">每个工具调用须穿透三层横切管道——Before 可短路拦截，After 全量合并，Error 兜底容错。新增一个横切关注点只需声明式注册，不改执行器核心。</p>
+    </div>
+    <div class="onion reveal" id="onion">
+      <div class="onion-ring or1"><span class="ring-label" style="position:absolute;top:8px;left:50%;transform:translateX(-50%);font-size:.7rem;color:var(--accent2);letter-spacing:.15em;white-space:nowrap">BEFORE · 执行前 · 9 个</span></div>
+      <div class="onion-ring or2"><span class="ring-label" style="position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:.68rem;color:var(--violet);letter-spacing:.15em;white-space:nowrap">AFTER · 执行后 · 4 个</span></div>
+      <div class="onion-ring or3"><div class="core"><div><b>ERROR</b><span>容错兜底 · 2 个</span></div></div></div>
+    </div>
+    <div class="onion-legend">
+      <span><i style="border-color:var(--accent2)"></i>Before · 9 中间件 · 可短路拦截</span>
+      <span><i style="border-color:var(--violet)"></i>After · 4 中间件 · 全量合并</span>
+      <span><i style="border-color:var(--gold)"></i>Error · 2 中间件 · 错误兜底</span>
+    </div>
+
+    <!-- 工具设计原则 -->
+    <div class="tool-vs mt3">
+      <div class="code-block bad reveal">
+        <span class="cap">GENERIC AGENT</span>
+        <span class="dim">// 没有归因链的 Agent 能说什么</span><br>
+        输入: "Machine_03 利用率 <span class="val">85%</span>"<br>
+        输出: <span class="badline">"Machine_03 是瓶颈"</span><br><br>
+        <span class="dim">// 只能复述指标，无法判断成因</span>
+      </div>
+      <div class="vs-vs reveal reveal-d1">VS</div>
+      <div class="code-block good reveal reveal-d1">
+        <span class="cap">XIAOQIANG AGENT</span>
+        <span class="dim">// 有归因链的 Agent 能说什么</span><br>
+        输入: "<span class="key">SKILL</span> 阻塞 <span class="val">60%</span>, <span class="key">SETUP</span> 阻塞 <span class="val">30%</span>, <span class="key">PRECEDENCE</span> 阻塞 <span class="val">10%</span>"<br>
+        输出: <span class="goodline">"瓶颈是技能约束。替线策略可修复 60% 阻塞，加班无效（不增加技能匹配）。建议资源重分配 + What-if 验证。"</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 决策闭环 ===== -->
+<section class="section" id="loop">
+  <div class="container">
+    <span class="section-label">Causal Decision Loop · 认知架构</span>
+    <h2 class="section-title">四段式闭环：感知 → 归因 → 决策 → 验证</h2>
+    <p class="section-sub">排产智能体的认知架构将「推理」与「验证」相分离——策略选择是推理的结果，其正确性无法仅凭推理保证；验证段以假设推演提供事实验证，使决策在「大胆假设、小心求证」的框架下进行。</p>
+
+    <div class="loop-track mt2">
+      <div class="loop-step reveal">
+        <div class="loop-arrow">→</div>
+        <div class="ls-ico">👁️</div>
+        <h4>感知</h4>
+        <p>经统一语义表征层读取排产数据，形成负载分布、瓶颈强度、风险等级的多维状态向量</p>
+      </div>
+      <div class="loop-step reveal reveal-d1">
+        <div class="loop-arrow">→</div>
+        <div class="ls-ico">🔍</div>
+        <h4>归因</h4>
+        <p>调用归因链分析，将异常追溯到约束成因：由哪些约束构成、贡献比例、对应松弛手段</p>
+      </div>
+      <div class="loop-step reveal reveal-d2">
+        <div class="loop-arrow">→</div>
+        <div class="ls-ico">🧭</div>
+        <h4>决策</h4>
+        <p>识别主导约束类型、评估松弛代价，从策略空间匹配对策并判断策略组合可行性</p>
+      </div>
+      <div class="loop-step reveal reveal-d3">
+        <div class="ls-ico">🧪</div>
+        <h4>验证</h4>
+        <p>在独立方案分支中假设推演，观测指标变化；成败均沉淀为 (约束, 策略, 改善) 经验</p>
+      </div>
+    </div>
+
+    <div class="loop-feedback reveal">
+      <span class="fb-line"></span>
+      验证结果回注 · 经验积累：<b>(SKILL, 替线策略, 拖期率 −7%)</b> 三元组入档，同类瓶颈直接推荐历史最优策略
+      <span class="fb-line"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 实验验证 ===== -->
+<section class="section" id="evidence" style="background:var(--bg2)">
+  <div class="container">
+    <span class="section-label">Evidence · 对比实验</span>
+    <h2 class="section-title">同一组工具，专用 Agent 与通用 Agent 的差距</h2>
+    <p class="section-sub">APS Agent 与通用 ReAct Agent 使用<strong>完全相同的一组工具</strong>运行于相同场景，差异仅在编排层——状态图、中间件管道与归因信息注入是否参与决策。</p>
+
+    <div class="evidence-grid">
+      <div class="ev-card reveal">
+        <div class="ev-num" data-count="97.6" data-decimals="1" data-suffix="%">0%</div>
+        <div class="ev-label">动作合法性</div>
+        <div class="ev-sub">vs 通用 Agent 48.5%（+49.1pp）</div>
+      </div>
+      <div class="ev-card gold reveal reveal-d1">
+        <div class="ev-num" data-count="-96" data-suffix="%">0</div>
+        <div class="ev-label">非法动作减少</div>
+        <div class="ev-sub">83 次 → 3 次</div>
+      </div>
+      <div class="ev-card violet reveal reveal-d2">
+        <div class="ev-num" data-count="-70" data-suffix="%">0</div>
+        <div class="ev-label">平均耗时下降</div>
+        <div class="ev-sub">33.3s → 9.8s</div>
+      </div>
+      <div class="ev-card reveal reveal-d3">
+        <div class="ev-num" data-count="191" data-suffix="">0</div>
+        <div class="ev-label">单元测试</div>
+        <div class="ev-sub">HiDAPS 引擎 · 零失败</div>
+      </div>
+    </div>
+
+    <div class="bar-compare">
+      <div class="bc-row reveal">
+        <span class="bc-name">动作合法性</span>
+        <div class="bc-track"><div class="bc-fill good" data-w="97.6%" data-label="97.6%">97.6%</div></div>
+        <span class="bc-val">97.6%</span>
+      </div>
+      <div class="bc-row reveal reveal-d1">
+        <span class="bc-name">通用 Agent</span>
+        <div class="bc-track"><div class="bc-fill bad" data-w="48.5%" data-label="48.5%">48.5%</div></div>
+        <span class="bc-val">48.5%</span>
+      </div>
+      <div class="bc-row reveal reveal-d2">
+        <span class="bc-name">错误事件</span>
+        <div class="bc-track"><div class="bc-fill good" data-w="4.3%" data-label="3 次">3 次</div></div>
+        <span class="bc-val">3</span>
+      </div>
+      <div class="bc-row reveal reveal-d3">
+        <span class="bc-name">通用 Agent</span>
+        <div class="bc-track"><div class="bc-fill bad" data-w="95.7%" data-label="66 次">66 次</div></div>
+        <span class="bc-val">66</span>
+      </div>
+    </div>
+
+    <div class="ev-note reveal"><span class="info-dot"></span>初步对比实验结果：18 个典型排产场景 × 3 次重复（108 次运行），2026-07 · 论文实验数据采集持续进行中</div>
+  </div>
+</section>
+
+<!-- ===== 差异化对比 ===== -->
+<section class="section" id="compare">
+  <div class="container">
+    <span class="section-label">Differentiation</span>
+    <h2 class="section-title">不是又一个 LLM-Agent 项目</h2>
+    <p class="section-sub">与通用 Agent 框架的本质区别：HiDAPS 提供了因果信息基础设施，Agent 基于归因链推理而非 prompt 猜测。</p>
+
+    <div style="overflow-x:auto">
+    <table class="compare-table">
+      <tr><th style="width:120px">维度</th><th>通用 Agent 框架</th><th>HiDAPS + APS Agent</th></tr>
+      <tr>
+        <td style="color:var(--text);font-weight:700">约束建模</td>
+        <td>靠 prompt 描述规则，不可验证</td>
+        <td class="win">35+ 约束类型，每条带语义 + 松弛声明，ConstraintChecker 可验证</td>
+      </tr>
+      <tr>
+        <td style="color:var(--text);font-weight:700">诊断粒度</td>
+        <td>「Machine_03 利用率 85%」</td>
+        <td class="win">「SKILL 阻塞 60% + SETUP 30% + PRECEDENCE 10%」——约束级归因分解</td>
+      </tr>
+      <tr class="hl">
+        <td style="color:var(--text);font-weight:700">策略匹配</td>
+        <td>数值阈值（util &gt; 0.6 → overtime）</td>
+        <td class="win">约束类型驱动：SKILL → 替线，TEMPORAL → 优先级，明确标注无效策略</td>
+      </tr>
+      <tr>
+        <td style="color:var(--text);font-weight:700">延迟追溯</td>
+        <td>无</td>
+        <td class="win">trace_delay_chain：上游根因 + 下游影响 + 受影响工单</td>
+      </tr>
+      <tr>
+        <td style="color:var(--text);font-weight:700">经验积累</td>
+        <td>无</td>
+        <td class="win">(约束, 策略, 改善) 三元组记录，同类瓶颈自动推荐历史最优</td>
+      </tr>
+      <tr>
+        <td style="color:var(--text);font-weight:700">安全机制</td>
+        <td>prompt 恳求 LLM 不犯错</td>
+        <td class="win">15 个中间件代码强制：校验 / 守卫 / 循环检测——非恳求，硬拦截</td>
+      </tr>
+      <tr>
+        <td style="color:var(--text);font-weight:700">工厂适配</td>
+        <td>改代码</td>
+        <td class="win">YAML 驱动字段映射，换工厂改配置不改代码</td>
+      </tr>
+      <tr>
+        <td style="color:var(--text);font-weight:700">方案版本</td>
+        <td>无</td>
+        <td class="win">版本链：根 → 参数修改 → 排产结果 → What-if 子版本，完整生命周期</td>
+      </tr>
+    </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer class="footer">
+  <div class="f-brand">HiDAPS <b>×</b> APS Agent</div>
+  <div style="color:var(--text2);font-size:.9rem">面向航空制造的交互式生产调度智能体研究 · 硕士学位论文（工程硕博士培养改革专项试点）</div>
+  <div class="f-tags">
+    <span>统一语义表征</span><span>约束语义化</span><span>归因链</span><span>基于归因的决策推理</span><span>假设推演</span><span>L0–L3 分级智能</span><span>跨模态协同</span>
+  </div>
+  <p>北京航空航天大学 · 国家卓越工程师学院 · 中国航空工业集团联合培养 · 2026</p>
+  <p style="margin-top:.5rem"><a href="https://github.com/NBZFK/APS Agent" target="_blank" rel="noopener">github.com/NBZFK/APS Agent</a></p>
+</footer>
+
+<!-- 3D 引擎（CDN 不可用时自动降级为静态背景） -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ============ 导航 ============ */
+(function(){
+  var nav=document.getElementById('nav'),toggle=document.getElementById('navToggle'),links=document.getElementById('navLinks');
+  toggle.addEventListener('click',function(){links.classList.toggle('open')});
+  links.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){links.classList.remove('open')})});
+
+  // 滚动高亮
+  var navA=links.querySelectorAll('a');
+  var secs=[].map.call(navA,function(a){var t=document.querySelector(a.getAttribute('href'));return t||null}).filter(Boolean);
+  window.addEventListener('scroll',function(){
+    var y=window.scrollY+110;
+    var cur=null;
+    secs.forEach(function(s){if(s.offsetTop<=y)cur=s});
+    navA.forEach(function(a){a.classList.toggle('active',cur&&a.getAttribute('href')==='#'+cur.id)});
+    nav.style.background=window.scrollY>40?'rgba(4,6,13,0.92)':'rgba(4,6,13,0.78)';
+  },{passive:true});
+})();
+
+/* ============ 滚动渐入 + 动画触发 ============ */
+(function(){
+  var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function onVisible(el,cb){
+    var obs=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){cb(e.target);obs.unobserve(e.target)}
+      });
+    },{threshold:0.15,rootMargin:'0px 0px -60px 0px'});
+    obs.observe(el);
+  }
+  if(reduced){
+    document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('visible')});
+    document.querySelectorAll('.attr-bar i,.cost-cell .cb i,.bc-fill').forEach(function(el){el.style.width=el.getAttribute('data-w')||'0%'});
+    document.querySelectorAll('.ap[data-count],.ev-num[data-count]').forEach(function(el){el.textContent=(el.getAttribute('data-count')||'0')+(el.getAttribute('data-suffix')||'')});
+    return;
+  }
+  document.querySelectorAll('.reveal').forEach(function(el){onVisible(el,function(t){t.classList.add('visible')})});
+  // 归因条 / 成本条 / 对比条
+  document.querySelectorAll('.attr-bar i,.cost-cell .cb i,.bc-fill').forEach(function(el){
+    onVisible(el,function(t){setTimeout(function(){t.style.width=t.getAttribute('data-w')||'0%'},120)});
+  });
+  // 数字计数
+  document.querySelectorAll('.ap[data-count],.ev-num[data-count]').forEach(function(el){
+    onVisible(el,function(t){animateCount(t)});
+  });
+  function animateCount(el){
+    var target=parseFloat(el.getAttribute('data-count'));
+    var decimals=parseInt(el.getAttribute('data-decimals')||'0',10);
+    var suffix=el.getAttribute('data-suffix')||'';
+    var start=null,dur=1400;
+    function step(ts){
+      if(!start)start=ts;
+      var p=Math.min((ts-start)/dur,1);
+      var eased=1-Math.pow(1-p,3);
+      var v=target*eased;
+      el.textContent=(decimals>0?v.toFixed(decimals):Math.round(v))+suffix;
+      if(p<1)requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+})();
+
+/* ============ 洋葱模型中间件布局 ============ */
+(function(){
+  var onion=document.getElementById('onion');
+  if(!onion)return;
+  var before=['<b>ContextParam</b>','<b>CrossModal</b>','<b>DataInjection</b>','<b>Prerequisite</b>','<b>Chain</b>','<b>Guardrail</b>','<b>ToolValidation</b>','<b>LoopDetection</b>','<b>Clarification</b>'];
+  var after=['<b>Todo</b>','<b>TokenUsage</b>','<b>Version</b>','<b>ToolResult</b>'];
+  // 用角度分布放置 chips
+  function placeChips(ring,chips,radius,offsetDeg){
+    var n=chips.length;
+    var step=360/n;
+    chips.forEach(function(html,i){
+      var ch=document.createElement('div');
+      ch.className='onion-chip';
+      ch.innerHTML=html;
+      var rad=(offsetDeg+i*step)*Math.PI/180;
+      var x=50+radius*Math.cos(rad);
+      var y=50+radius*Math.sin(rad);
+      ch.style.left=x+'%';
+      ch.style.top=y+'%';
+      ring.appendChild(ch);
+    });
+  }
+  var r1=onion.querySelector('.or1'),r2=onion.querySelector('.or2');
+  placeChips(r1,before,47.5,-90);
+  placeChips(r2,after,37,-90);
+})();
+
+/* ============ 3D Hero 背景（Three.js，可降级） ============ */
+(function(){
+  var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var canvas=document.getElementById('bg3d');
+  if(typeof THREE==='undefined'||reduced){canvas.style.display='none';return;}
+
+  var W=window.innerWidth,H=window.innerHeight;
+  var renderer=new THREE.WebGLRenderer({canvas:canvas,alpha:true,antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  renderer.setSize(W,H);
+  var scene=new THREE.Scene();
+  var camera=new THREE.PerspectiveCamera(55,W/H,0.1,200);
+  camera.position.set(0,1.2,9);
+  camera.lookAt(0,0,0);
+
+  /* --- 飞机线框 --- */
+  var air=new THREE.Group();
+  var matSolid=new THREE.MeshBasicMaterial({color:0x38bdf8,transparent:true,opacity:0.16});
+  var matWire=new THREE.MeshBasicMaterial({color:0x7dd3fc,wireframe:true,transparent:true,opacity:0.65});
+  function add(geo,dx,dy,dz,rx,ry,rz){
+    var m1=new THREE.Mesh(geo,matSolid);m1.position.set(dx,dy,dz);m1.rotation.set(rx,ry,rz);
+    var m2=new THREE.Mesh(geo,matWire);m2.position.set(dx,dy,dz);m2.rotation.set(rx,ry,rz);
+    air.add(m1);air.add(m2);
+  }
+  add(new THREE.CylinderGeometry(0.16,0.30,3.0,14,1),0,0,0,Math.PI/2,0,0);   // 机身
+  add(new THREE.ConeGeometry(0.30,1.0,14,1),0,0.02,-1.95,Math.PI/2,0,0);      // 机头
+  add(new THREE.BoxGeometry(3.4,0.05,0.8),0,0.04,0.35,0,0,0);                // 主翼
+  add(new THREE.BoxGeometry(0.9,0.05,0.5),0,0.04,1.28,0,0,0);                // 尾翼
+  add(new THREE.BoxGeometry(0.05,0.55,0.4),0,0.32,1.32,0,0,0);               // 垂尾
+  air.position.set(0,0.3,0);
+  air.rotation.set(0.25,-0.5,0);
+  scene.add(air);
+
+  /* --- 星空粒子 --- */
+  var starsGeo=new THREE.BufferGeometry();
+  var starCount=700,sp=new Float32Array(starCount*3);
+  for(var i=0;i<starCount;i++){
+    sp[i*3]=(Math.random()-0.5)*46;
+    sp[i*3+1]=(Math.random()-0.5)*26;
+    sp[i*3+2]=(Math.random()-0.5)*30-4;
+  }
+  starsGeo.setAttribute('position',new THREE.BufferAttribute(sp,3));
+  var stars=new THREE.Points(starsGeo,new THREE.PointsMaterial({color:0x8ecdf5,size:0.055,transparent:true,opacity:0.85}));
+  scene.add(stars);
+
+  /* --- 轨道光点（工单流） --- */
+  function orbit(radius,count,y,tilt){
+    var g=new THREE.BufferGeometry(),pos=new Float32Array(count*3);
+    for(var i=0;i<count;i++){
+      var a=i/count*Math.PI*2;
+      pos[i*3]=Math.cos(a)*radius;
+      pos[i*3+1]=y+Math.sin(a)*radius*0.25;
+      pos[i*3+2]=Math.sin(a)*radius;
+    }
+    g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+    var p=new THREE.Points(g,new THREE.PointsMaterial({color:0x22d3ee,size:0.09,transparent:true,opacity:0.9}));
+    p.rotation.x=tilt;
+    return p;
+  }
+  var orb1=orbit(3.4,90,0.2,0.18);
+  var orb2=orbit(4.4,120,-0.15,-0.22);
+  scene.add(orb1);scene.add(orb2);
+
+  /* --- 网格地面 --- */
+  var grid=new THREE.GridHelper(22,22,0x1e3a5f,0x12233f);
+  grid.position.y=-2.2;
+  grid.material.transparent=true;
+  grid.material.opacity=0.35;
+  scene.add(grid);
+
+  /* --- 鼠标视差 --- */
+  var tx=0,ty=0,cx=0,cy=0;
+  window.addEventListener('mousemove',function(e){
+    tx=(e.clientX/W-0.5)*1.1;
+    ty=(e.clientY/H-0.5)*0.7;
+  },{passive:true});
+
+  var t=0;
+  function animate(){
+    requestAnimationFrame(animate);
+    t+=0.01;
+    air.rotation.y+=0.0035;
+    air.position.y=0.3+Math.sin(t*1.6)*0.18;
+    orb1.rotation.y-=0.0022;
+    orb2.rotation.y+=0.0016;
+    stars.rotation.y+=0.00022;
+    cx+=(tx-cx)*0.04;cy+=(ty-cy)*0.04;
+    camera.position.x=cx*1.4;
+    camera.position.y=1.2+cy*1.0;
+    camera.lookAt(0,0,0);
+    renderer.render(scene,camera);
+  }
+  animate();
+
+  window.addEventListener('resize',function(){
+    var w=window.innerWidth,h=window.innerHeight;
+    camera.aspect=w/h;camera.updateProjectionMatrix();
+    renderer.setSize(w,h);
+  });
+})();
+</script>
+</body>
+</html>
